@@ -1,4 +1,7 @@
 {
+  "name": "your-project-name",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -14,18 +17,23 @@
   "dependencies": {
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.2.0",
+    "aws-amplify": "^6.13.5",
     "classnames": "^2.5.1",
     "next": "15.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@aws-amplify/backend": "^1.14.3",
+    "@aws-amplify/backend-cli": "^1.5.0",
+    "@aws-amplify/cli": "latest",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",
     "@types/classnames": "^2.3.4",
     "@types/node": "22.13.10",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "ampx": "latest",
     "autoprefixer": "^10.4.16",
     "cssnano": "^6.0.3",
     "eslint": "^8.57.0",
