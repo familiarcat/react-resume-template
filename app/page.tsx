@@ -1,6 +1,5 @@
 'use client';
 
-import {NextPage} from 'next';
 import dynamic from 'next/dynamic';
 import About from './components/Sections/About';
 import Contact from './components/Sections/Contact';
@@ -10,13 +9,15 @@ import Portfolio from './components/Sections/Portfolio';
 import Resume from './components/Sections/Resume';
 import Testimonials from './components/Sections/Testimonials';
 
-const Header = dynamic(() => import('./components/Sections/Header'), {
-  ssr: false
-});
+// Dynamically import Header with no SSR
+const Header = dynamic(
+  () => import('./components/Sections/Header'),
+  { ssr: false }
+);
 
-const Page: NextPage = () => {
+export default function Page() {
   return (
-    <main>
+    <main className="flex min-h-screen flex-col">
       <Header />
       <Hero />
       <About />
@@ -27,6 +28,4 @@ const Page: NextPage = () => {
       <Footer />
     </main>
   );
-};
-
-export default Page;
+}
