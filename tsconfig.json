@@ -24,6 +24,9 @@
     ],
     "baseUrl": ".",
     "paths": {
+      "$amplify/*": [
+        "../.amplify/generated/*"
+      ],
       "@/*": ["./app/*"]
     }
   },

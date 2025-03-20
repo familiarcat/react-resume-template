@@ -1,0 +1,67 @@
+{
+  "title": "Full Stack Application Architect & Digital Transformation Leader",
+  "summaryId": "summary_brady",
+  "contactInformationId": "contact_brady",
+  "educationId": "education_brady",
+  "experienceId": "experience_brady",
+  "skills": [
+    { "title": "Full Stack Development", "link": "https://example.com/fullstack" },
+    { "title": "Agile Methodologies", "link": "https://www.agilealliance.org/" },
+    { "title": "Cloud Migration", "link": "https://aws.amazon.com/cloud/" },
+    { "title": "React", "link": "https://reactjs.org/" },
+    { "title": "Node.js", "link": "https://nodejs.org/" },
+    { "title": "Ruby on Rails", "link": "https://rubyonrails.org/" },
+    { "title": "Java", "link": "https://www.oracle.com/java/" },
+    { "title": "UI/UX & Graphic Design", "link": "https://www.adobe.com/creativecloud.html" },
+    { "title": "Project & Product Management", "link": "https://www.pmi.org/" }
+  ],
+  "summary": {
+    "goals": "To continuously drive innovation by blending cutting-edge technology with creative design and agile best practices. Focused on delivering enterprise-grade solutions and digital transformations that empower teams and organizations.",
+    "persona": "A versatile, team-oriented leader with a strong balance of creative vision and technical proficiency.",
+    "url": "https://bradygeorgen.example.com",
+    "headshot": "https://bradygeorgen.example.com/headshot.jpg",
+    "gptResponse": "Brady Georgen uniquely merges a background in digital arts with deep technical expertise to lead transformative projects in modern software development.",
+    "resume": "brady_comprehensive_resume"
+  },
+  "contactInformation": {
+    "name": "Brady Georgen",
+    "email": "brady@example.com",
+    "phone": "3145800608",
+    "resume": "brady_comprehensive_resume",
+    "references": [
+      { "name": "Joe", "phone": "111-222-3333", "email": "joe@example.com", "contactInformationId": "contact_brady" },
+      { "name": "Serge", "phone": "222-333-4444", "email": "serge@example.com", "contactInformationId": "contact_brady" },
+      { "name": "Jason", "phone": "333-444-5555", "email": "jason@example.com", "contactInformationId": "contact_brady" },
+      { "name": "Heather", "phone": "444-555-6666", "email": "heather@example.com", "contactInformationId": "contact_brady" }
+    ]
+  },
+  "education": {
+    "summary": "Brady’s education provided a unique blend of creative arts and critical thinking, forming the foundation for his innovative approach to technology.",
+    "resume": "brady_comprehensive_resume",
+    "schools": [
+      { "name": "Meramac Community College", "educationId": "education_brady", "degrees": [ { "major": "Digital Filmmaking", "startYear": "1999", "endYear": "2001", "schoolId": "school1" } ] },
+      { "name": "Webster University", "educationId": "education_brady", "degrees": [ { "major": "Philosophy", "startYear": "2001", "endYear": "2005", "schoolId": "school2" }, { "major": "Graphic Design", "startYear": "2001", "endYear": "2005", "schoolId": "school2" } ] }
+    ]
+  },
+  "experience": {
+    "title": "Comprehensive Career in Software, Design & Enterprise Consulting",
+    "text": "Brady Georgen has built a multifaceted career that spans creative design, web development, and enterprise consulting. His journey includes early work in Flash-based web development, leading creative projects, and later spearheading digital transformations for Fortune 500 clients.",
+    "gptResponse": "A proven leader with extensive experience in both the creative and technical domains, driving agile methodologies and innovative enterprise solutions.",
+    "resume": "brady_comprehensive_resume",
+    "companies": [
+      { "name": "Asynchrony Solutions", "role": "Designer, Web Developer & Marketing Assistant", "startDate": "2005", "endDate": "2008", "title": "Designer, Web Developer & Marketing Assistant", "gptResponse": "Initiated his career by designing and developing interactive web content using Flash, JavaScript, and HTML. Instrumental in the creation of a $25M proposal for a DOD contract.", "experienceId": "experience_brady" },
+      { "name": "ThinkTank", "role": "Lead Developer & Creative Director", "startDate": "2008", "endDate": "2009", "title": "Lead Developer & Creative Director", "gptResponse": "Founded a freelance consultancy that relaunched dialsoap.com with innovative interactive elements built with Adobe Flex, merging creative vision with technical execution.", "experienceId": "experience_brady" },
+      { "name": "Touchwood Creative / Infuze", "role": "Senior Developer & Assistant Art Director", "startDate": "2009", "endDate": "2013", "title": "Senior Developer & Assistant Art Director", "gptResponse": "Advanced from developer to creative leader, developing interactive frameworks for Elsevier and maintaining internal Ruby on Rails systems. Recognized with two Silver Addy Awards for outstanding creative contributions.", "experienceId": "experience_brady" },
+      { "name": "Deliveries on Demand", "role": "Lead Developer", "startDate": "2013", "endDate": "2014", "title": "Lead Developer", "gptResponse": "Designed and developed an interactive visualization platform that centralized automotive financing data, enabling real-time decision-making.", "experienceId": "experience_brady" },
+      { "name": "Daugherty Business Solutions", "role": "Enterprise Consultant & Technology Strategist", "startDate": "2014", "endDate": "2023", "title": "Enterprise Consultant & Technology Strategist", "gptResponse": "Led transformative projects for major clients including MasterCard, Charter Communications, Bayer, and Cox. Implemented agile methodologies, cloud migrations, and innovative digital solutions while also spearheading a green field R&D initiative.", "experienceId": "experience_brady", "companies": [
+          { "name": "Daugherty Business Solutions", "role": "Enterprise Consultant & Technology Strategist", "startDate": "2014", "endDate": "2023", "title": "Enterprise Consultant & Technology Strategist", "gptResponse": "Led transformative projects for major clients including MasterCard, Charter Communications, Bayer, and Cox.", "experienceId": "experience_brady", "engagements": [
+              { "client": "MasterCard", "startDate": "2014", "endDate": "2016", "gptResponse": "Developed comprehensive onboarding materials and interactive sample code to support the MasterPass initiative.", "companyId": "company5", "accomplishments": [ { "title": "MasterPass Onboarding Suite", "description": "Created an integrated set of tutorials, sample code, and interactive demonstrations that streamlined the onboarding process for MasterPass.", "link": "https://bradygeorgen.example.com/masterpass", "companyId": "company5" } ] },
+              { "client": "Charter Communications", "startDate": "2016", "endDate": "2018", "gptResponse": "Engineered an interactive call center solution that enabled automation of customer connectivity management.", "companyId": "company5" },
+              { "client": "Monsanto/Bayer", "startDate": "2018", "endDate": "2020", "gptResponse": "Managed the migration and modernization of legacy systems, delivering an executive dashboard for real-time data visualization using Angular and React.", "companyId": "company5" },
+              { "client": "Cox Communications", "startDate": "2020", "endDate": "2023", "gptResponse": "Developed a scaffolding framework to generate modular React applications that integrated with Adobe Content Manager.", "companyId": "company5" }
+            ] }
+        ] },
+      { "name": "Digital Ronan (Consultancy)", "role": "Digital Consultant", "startDate": "2023", "endDate": "Present", "title": "Digital Consultant & Creative Technologist", "gptResponse": "Provides strategic digital consulting for local businesses, applying skills in automation, networking, and design to deliver scalable solutions.", "experienceId": "experience_brady" }
+    ]
+  }
+}
