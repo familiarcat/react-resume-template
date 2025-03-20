@@ -1,11 +1,14 @@
+'use client';
+
+import {FC, Fragment, memo} from 'react';
 import {Dialog, Transition} from '@headlessui/react';
 import {Bars3BottomRightIcon} from '@heroicons/react/24/outline';
 import classNames from 'classnames';
 import Link from 'next/link';
-import {FC, Fragment, memo, useCallback, useMemo, useState} from 'react';
-
+import {useCallback, useMemo, useState} from 'react';
 import {SectionId} from '../../data/data';
 import {useNavObserver} from '../../hooks/useNavObserver';
+import dynamic from 'next/dynamic';
 
 export const headerID = 'headerNav';
 
@@ -17,7 +20,9 @@ const Header: FC = memo(() => {
   );
 
   const intersectionHandler = useCallback((section: SectionId | null) => {
-    section && setCurrentSection(section);
+    if (section) {
+      setCurrentSection(section);
+    }
   }, []);
 
   useNavObserver(navSections.map(section => `#${section}`).join(','), intersectionHandler);
@@ -30,7 +35,14 @@ const Header: FC = memo(() => {
   );
 });
 
-const DesktopNav: FC<{navSections: SectionId[]; currentSection: SectionId | null}> = memo(
+Header.displayName = 'Header';
+
+// Export with no SSR
+export default dynamic(() => Promise.resolve(Header), {
+  ssr: false
+});
+
+export const DesktopNav = memo<{navSections: SectionId[]; currentSection: SectionId | null}>(
   ({navSections, currentSection}) => {
     const baseClass =
       '-m-1.5 p-1.5 rounded-md font-bold first-letter:uppercase hover:transition-colors hover:duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 sm:hover:text-orange-500 text-neutral-100';
@@ -54,7 +66,7 @@ const DesktopNav: FC<{navSections: SectionId[]; currentSection: SectionId | null
   },
 );
 
-const MobileNav: FC<{navSections: SectionId[]; currentSection: SectionId | null}> = memo(
+export const MobileNav = memo<{navSections: SectionId[]; currentSection: SectionId | null}>(
   ({navSections, currentSection}) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -117,13 +129,13 @@ const MobileNav: FC<{navSections: SectionId[]; currentSection: SectionId | null}
   },
 );
 
-const NavItem: FC<{
+export const NavItem = memo<{
   section: string;
   current: boolean;
   activeClass: string;
   inactiveClass: string;
   onClick?: () => void;
-}> = memo(({section, current, inactiveClass, activeClass, onClick}) => {
+}>(({section, current, inactiveClass, activeClass, onClick}) => {
   return (
     <Link
       className={classNames(current ? activeClass : inactiveClass)}
@@ -135,5 +147,6 @@ const NavItem: FC<{
   );
 });
 
-Header.displayName = 'Header';
-export default Header;
+DesktopNav.displayName = 'DesktopNav';
+MobileNav.displayName = 'MobileNav';
+NavItem.displayName = 'NavItem';

@@ -1,3 +1,5 @@
+'use client';
+
 import {FC, memo} from 'react';
 
 const Base: FC = memo(() => {

@@ -1,7 +1,8 @@
+"use client"
 import {ArrowTopRightOnSquareIcon} from '@heroicons/react/24/outline';
 import classNames from 'classnames';
 import Image from 'next/image';
-import {FC, memo, MouseEvent, useCallback, useEffect, useRef, useState} from 'react';
+import React,{FC, memo, MouseEvent, RefObject, useCallback, useEffect, useRef, useState} from 'react';
 
 import {isMobile} from '../../config';
 import {portfolioItems, SectionId} from '../../data/data';
@@ -49,7 +50,7 @@ const ItemOverlay: FC<{item: PortfolioItem}> = memo(({item: {url, title, descrip
       setMobile(true);
     }
   }, []);
-  useDetectOutsideClick(linkRef, () => setShowOverlay(false));
+  useDetectOutsideClick(linkRef as RefObject<HTMLAnchorElement>, () => setShowOverlay(false));
 
   const handleItemClick = useCallback(
     (event: MouseEvent<HTMLElement>) => {

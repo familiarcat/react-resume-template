@@ -1,4 +1,5 @@
-import {FC, memo, useCallback, useMemo, useState} from 'react';
+"use client"
+import React, {FC, memo, useCallback, useMemo, useState} from 'react';
 
 interface FormData {
   name: string;

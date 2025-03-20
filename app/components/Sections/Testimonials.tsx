@@ -1,9 +1,11 @@
+'use client';
+import Image from 'next/image';
 import classNames from 'classnames';
 import {FC, memo, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
 import {isApple, isMobile} from '../../config';
 import {SectionId, testimonial} from '../../data/data';
-import {Testimonial} from '../../data/dataDef';
+import type {Testimonial} from '../../data/dataDef';
 import useInterval from '../../hooks/useInterval';
 import useWindow from '../../hooks/useWindow';
 import QuoteIcon from '../Icon/QuoteIcon';
@@ -123,7 +125,14 @@ const Testimonial: FC<{testimonial: Testimonial; isActive: boolean}> = memo(
       {image ? (
         <div className="relative h-14 w-14 shrink-0 sm:h-16 sm:w-16">
           <QuoteIcon className="absolute -left-2 -top-2 h-4 w-4 stroke-black text-white" />
-          <img className="h-full w-full rounded-full" src={image} />
+          <Image 
+            className="rounded-full"
+            src={image}
+            alt={`${name}'s testimonial`}
+            fill
+            sizes="(max-width: 768px) 56px, 64px"
+            style={{objectFit: 'cover'}}
+          />
         </div>
       ) : (
         <QuoteIcon className="h-5 w-5 shrink-0 text-white sm:h-8 sm:w-8" />
@@ -135,5 +144,8 @@ const Testimonial: FC<{testimonial: Testimonial; isActive: boolean}> = memo(
     </div>
   ),
 );
+
+Testimonials.displayName = 'Testimonials';
+Testimonial.displayName = 'Testimonial';
 
 export default Testimonials;
