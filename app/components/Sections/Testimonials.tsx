@@ -3,7 +3,7 @@ import Image from 'next/image';
 import classNames from 'classnames';
 import {FC, memo, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
-import {isApple, isMobile} from '../../config';
+import {getIsApple, getIsMobile} from '../../config';
 import {SectionId, testimonial} from '../../data/data';
 import type {Testimonial} from '../../data/dataDef';
 import useInterval from '../../hooks/useInterval';
@@ -30,7 +30,7 @@ const Testimonials: FC = memo(() => {
 
   // Mobile iOS doesn't allow background-fixed elements
   useEffect(() => {
-    setParallaxEnabled(!(isMobile && isApple));
+    setParallaxEnabled(!(getIsMobile() && getIsApple()));
   }, []);
 
   useEffect(() => {
@@ -125,7 +125,7 @@ const Testimonial: FC<{testimonial: Testimonial; isActive: boolean}> = memo(
       {image ? (
         <div className="relative h-14 w-14 shrink-0 sm:h-16 sm:w-16">
           <QuoteIcon className="absolute -left-2 -top-2 h-4 w-4 stroke-black text-white" />
-          <Image 
+          <Image
             className="rounded-full"
             src={image}
             alt={`${name}'s testimonial`}

@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import Image from 'next/image';
 import React,{FC, memo, MouseEvent, RefObject, useCallback, useEffect, useRef, useState} from 'react';
 
-import {isMobile} from '../../config';
+import {getIsMobile} from '../../config';
 import {portfolioItems, SectionId} from '../../data/data';
 import {PortfolioItem} from '../../data/dataDef';
 import useDetectOutsideClick from '../../hooks/useDetectOutsideClick';
@@ -46,7 +46,7 @@ const ItemOverlay: FC<{item: PortfolioItem}> = memo(({item: {url, title, descrip
 
   useEffect(() => {
     // Avoid hydration styling errors by setting mobile in useEffect
-    if (isMobile) {
+    if (getIsMobile()) {
       setMobile(true);
     }
   }, []);

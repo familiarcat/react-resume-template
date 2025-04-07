@@ -3,16 +3,16 @@ backend:
   phases:
     build:
       commands:
-        - yarn install
-        - yarn run generate-env
+        - npm ci
+        - npm run generate-env
 frontend:
   phases:
     preBuild:
       commands:
-        - yarn install
+        - npm ci
     build:
       commands:
-        - yarn run build
+        - npm run build
   artifacts:
     baseDirectory: .next
     files:

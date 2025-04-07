@@ -13,30 +13,22 @@ try {
   }
 
   const amplifyOutputs = JSON.parse(fs.readFileSync(amplifyOutputsPath, 'utf8'));
-  
+
   // Extract the necessary values from amplify_outputs.json
-  const {
-    awsAppsyncApiEndpoint,
-    awsAppsyncApiId,
-    awsAppsyncAuthenticationType,
-    awsAppsyncRegion,
-    identityPoolId,
-    region,
-    userPoolId,
-    webClientId
-  } = amplifyOutputs;
+  const auth = amplifyOutputs.auth || {};
+  const data = amplifyOutputs.data || {};
 
   // Create the .env.local file content
   const envContent = `
 # Amplify Configuration
-NEXT_PUBLIC_AWS_APPSYNC_API_ENDPOINT=${awsAppsyncApiEndpoint}
-NEXT_PUBLIC_AWS_APPSYNC_API_ID=${awsAppsyncApiId}
-NEXT_PUBLIC_AWS_APPSYNC_AUTHENTICATION_TYPE=${awsAppsyncAuthenticationType}
-NEXT_PUBLIC_AWS_APPSYNC_REGION=${awsAppsyncRegion}
-NEXT_PUBLIC_AWS_COGNITO_IDENTITY_POOL_ID=${identityPoolId}
-NEXT_PUBLIC_AWS_REGION=${region}
-NEXT_PUBLIC_AWS_USER_POOLS_ID=${userPoolId}
-NEXT_PUBLIC_AWS_USER_POOLS_WEB_CLIENT_ID=${webClientId}
+NEXT_PUBLIC_AWS_APPSYNC_API_ENDPOINT=${data.url || ''}
+NEXT_PUBLIC_AWS_APPSYNC_API_ID=${data.url ? data.url.split('/')[2].split('.')[0] : ''}
+NEXT_PUBLIC_AWS_APPSYNC_AUTHENTICATION_TYPE=${data.default_authorization_type || ''}
+NEXT_PUBLIC_AWS_APPSYNC_REGION=${data.aws_region || ''}
+NEXT_PUBLIC_AWS_COGNITO_IDENTITY_POOL_ID=${auth.identity_pool_id || ''}
+NEXT_PUBLIC_AWS_REGION=${auth.aws_region || ''}
+NEXT_PUBLIC_AWS_USER_POOLS_ID=${auth.user_pool_id || ''}
+NEXT_PUBLIC_AWS_USER_POOLS_WEB_CLIENT_ID=${auth.user_pool_client_id || ''}
 `;
 
   // Write the .env.local file

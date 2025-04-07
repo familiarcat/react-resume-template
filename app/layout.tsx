@@ -1,4 +1,5 @@
 import './globalStyles.scss';
+import './global.js';
 
 import {Metadata} from 'next';
 import {Inter} from 'next/font/google';
@@ -29,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        {/* Wrap the content in AmplifyProvider for client-side Amplify initialization */}
         <AmplifyProvider>{children}</AmplifyProvider>
       </body>
     </html>
