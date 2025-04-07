@@ -40,3 +40,10 @@ yarn-error.log*
 .amplify
 amplify_outputs*
 amplifyconfiguration*
+aws-exports.js
+.env.local
+.env.development
+.env.production
+
+# package-lock.json (using yarn)
+package-lock.json
