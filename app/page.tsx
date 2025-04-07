@@ -8,6 +8,8 @@ import Hero from './components/Sections/Hero';
 import Portfolio from './components/Sections/Portfolio';
 import Resume from './components/Sections/Resume';
 import Testimonials from './components/Sections/Testimonials';
+// import { BentoMotion } from './components/bento/BentoMotion';
+import { ParallaxContainer } from './components/parallax/ParallaxContainer';
 
 // Dynamically import Header with no SSR
 const Header = dynamic(
@@ -21,9 +23,11 @@ export default function Page() {
       <Header />
       <Hero />
       <About />
+      <ParallaxContainer>
       <Resume />
       <Portfolio />
       <Testimonials />
+      </ParallaxContainer>
       <Contact />
       <Footer />
     </main>

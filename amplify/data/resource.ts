@@ -97,7 +97,38 @@ const schema = a.schema({
     }).authorization((allow) => [allow.guest()]),
 });
 
-export type Schema = ClientSchema<typeof schema>;
+export type Schema = {
+  models: {
+    Todo: {
+      list: () => Promise<any[]>;
+    };
+    Resume: {
+      id: string;
+      title?: string;
+      summaryId?: string;
+      contactInformationId?: string;
+      educationId?: string;
+      experienceId?: string;
+      summary?: Schema['Summary'];
+      contactInformation?: Schema['ContactInformation'];
+      education?: Schema['Education'];
+      experience?: Schema['Experience'];
+      skills?: Schema['Skill'][];
+    };
+    // Add other models as needed
+  };
+};
+
+export type ModelTypes = {
+  Resume: {
+    list: () => Promise<Schema['Resume'][]>;
+    get: (id: string) => Promise<Schema['Resume']>;
+    create: (input: Partial<Schema['Resume']>) => Promise<Schema['Resume']>;
+    update: (input: Partial<Schema['Resume']> & { id: string }) => Promise<Schema['Resume']>;
+    delete: (id: string) => Promise<Schema['Resume']>;
+  };
+  // ... other model types ...
+};
 
 export const data = defineData({
   schema,
