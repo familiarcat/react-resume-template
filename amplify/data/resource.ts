@@ -1,9 +1,9 @@
-import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+import { a, defineData } from '@aws-amplify/backend';
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
 adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any unauthenticated user can "create", "read", "update", 
+specifies that any unauthenticated user can "create", "read", "update",
 and "delete" any "Todo" records.
 =========================================================================*/
 const schema = a.schema({
@@ -109,23 +109,92 @@ export type Schema = {
       contactInformationId?: string;
       educationId?: string;
       experienceId?: string;
-      summary?: Schema['Summary'];
-      contactInformation?: Schema['ContactInformation'];
-      education?: Schema['Education'];
-      experience?: Schema['Experience'];
-      skills?: Schema['Skill'][];
+      summary?: Schema['models']['Summary'];
+      contactInformation?: Schema['models']['ContactInformation'];
+      education?: Schema['models']['Education'];
+      experience?: Schema['models']['Experience'];
+      skills?: Schema['models']['Skill'][];
     };
-    // Add other models as needed
+    Summary: {
+      id: string;
+      goals?: string;
+      persona?: string;
+      url?: string;
+      headshot?: string;
+      gptResponse?: string;
+      resume?: string;
+      resumes?: Schema['models']['Resume'][];
+    };
+    ContactInformation: {
+      id: string;
+      name?: string;
+      email?: string;
+      phone?: string;
+      resume?: string;
+      references?: Schema['models']['Reference'][];
+      resumes?: Schema['models']['Resume'][];
+    };
+    Reference: {
+      id: string;
+      name?: string;
+      phone?: string;
+      email?: string;
+      contactInformationId?: string;
+      contactInformation?: Schema['models']['ContactInformation'];
+    };
+    Education: {
+      id: string;
+      summary?: string;
+      resume?: string;
+      schools?: Schema['models']['School'][];
+      resumes?: Schema['models']['Resume'][];
+    };
+    School: {
+      id: string;
+      name?: string;
+      educationId?: string;
+      education?: Schema['models']['Education'];
+      degrees?: Schema['models']['Degree'][];
+    };
+    Degree: {
+      id: string;
+      major?: string;
+      startYear?: string;
+      endYear?: string;
+      schoolId?: string;
+      school?: Schema['models']['School'];
+    };
+    Experience: {
+      id: string;
+      positions?: Schema['models']['Position'][];
+      resumes?: Schema['models']['Resume'][];
+    };
+    Position: {
+      id: string;
+      title?: string;
+      company?: string;
+      startDate?: string;
+      endDate?: string;
+      experienceId?: string;
+      experience?: Schema['models']['Experience'];
+    };
+    Skill: {
+      id: string;
+      title?: string;
+      link?: string;
+      resumeId?: string;
+      resume?: Schema['models']['Resume'];
+    };
   };
 };
 
 export type ModelTypes = {
   Resume: {
-    list: () => Promise<Schema['Resume'][]>;
-    get: (id: string) => Promise<Schema['Resume']>;
-    create: (input: Partial<Schema['Resume']>) => Promise<Schema['Resume']>;
-    update: (input: Partial<Schema['Resume']> & { id: string }) => Promise<Schema['Resume']>;
-    delete: (id: string) => Promise<Schema['Resume']>;
+    list: () => Promise<Schema['models']['Resume'][]>;
+    get: (id: string) => Promise<Schema['models']['Resume']>;
+    create: (input: Partial<Schema['models']['Resume']>) => Promise<Schema['models']['Resume']>;
+    update: (input: Partial<Schema['models']['Resume']> & { id: string }) => Promise<Schema['models']['Resume']>;
+    delete: (id: string) => Promise<Schema['models']['Resume']>;
   };
   // ... other model types ...
 };
@@ -142,7 +211,7 @@ Go to your frontend source code. From your client-side code, generate a
 Data client to make CRUDL requests to your table. (THIS SNIPPET WILL ONLY
 WORK IN THE FRONTEND CODE FILE.)
 
-Using JavaScript or Next.js React Server Components, Middleware, Server 
+Using JavaScript or Next.js React Server Components, Middleware, Server
 Actions or Pages Router? Review how to generate Data clients for those use
 cases: https://docs.amplify.aws/gen2/build-a-backend/data/connect-to-API/
 =========================================================================*/
