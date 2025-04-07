@@ -2,9 +2,18 @@
   "name": "bradygeorgen",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=18.19.0",
+    "npm": ">=9.8.1"
+  },
+  "resolutions": {
+    "execa": "8.0.1"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "fix-dependencies": "node scripts/fix-dependencies.js",
+    "amplify-build": "npm run fix-dependencies && ./scripts/amplify-build.sh",
     "start": "next start",
     "lint": "next lint",
     "sandbox-delete": "unset AWS_ACCESS_KEY_ID && unset AWS_SECRET_ACCESS_KEY && unset AWS_SESSION_TOKEN && export AWS_PROFILE=AmplifyUser && npx ampx sandbox delete --profile AmplifyUser",

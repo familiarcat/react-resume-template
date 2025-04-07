@@ -1,6 +1,14 @@
 version: 1
 backend:
   phases:
+    preBuild:
+      commands:
+        - npm install -g npm@9.8.1
+        - nvm install 18.19.0
+        - nvm use 18.19.0
+        - npm --version
+        - node --version
+        - npm run fix-dependencies
     build:
       commands:
         - npm ci
@@ -9,10 +17,16 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci
+        - npm install -g npm@9.8.1
+        - nvm install 18.19.0
+        - nvm use 18.19.0
+        - npm --version
+        - node --version
+        - npm run fix-dependencies
+        - npm ci --legacy-peer-deps
     build:
       commands:
-        - npm run build
+        - npm run amplify-build
   artifacts:
     baseDirectory: .next
     files:
