@@ -1,0 +1,28 @@
+version: 1
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - echo "=== PRE-BUILD STARTED ==="
+            - npm ci --legacy-peer-deps
+            - npm install sharp --no-save
+            - echo "=== PRE-BUILD COMPLETED ==="
+        build:
+          commands:
+            - echo "=== BUILD STARTED ==="
+            - export NODE_OPTIONS="--max-old-space-size=4096"
+            - export NODE_ENV=production
+            - export NEXT_TELEMETRY_DISABLED=1
+            - cp next.config.amplify.js next.config.js
+            - npm run build
+            - echo "=== BUILD COMPLETED ==="
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
+    appRoot: .

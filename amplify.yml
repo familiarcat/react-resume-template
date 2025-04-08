@@ -4,9 +4,11 @@ frontend:
     preBuild:
       commands:
         - echo "=== PRE-BUILD STARTED ==="
-        - nvm use 18.19.0
+        - echo "Setting up Node.js..."
+        - bash ./scripts/amplify-node-setup.sh || (echo "Failed to set up Node.js" && exit 1)
         - node --version
         - npm --version
+        - echo "Installing dependencies..."
         - npm ci --legacy-peer-deps
         - npm install sharp --no-save
         - echo "=== PRE-BUILD COMPLETED ==="

@@ -16,6 +16,7 @@
     "postinstall": "npm run fix-dependencies",
     "amplify-build": "npm run fix-dependencies && ./scripts/amplify-build.sh",
     "amplify:build": "node scripts/amplify-build-v2.js",
+    "amplify:gen2": "./scripts/amplify-gen2-build.sh",
     "test:amplify": "./scripts/test-amplify-build.sh",
     "start": "next start",
     "lint": "next lint",
