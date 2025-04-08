@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/verify-amplify-build.js",
     "fix-dependencies": "node scripts/fix-dependencies.js",
     "postinstall": "npm run fix-dependencies",
     "amplify-build": "npm run fix-dependencies && ./scripts/amplify-build.sh",
@@ -26,7 +26,8 @@
     "generate-env": "node scripts/generate-env.js",
     "local-dev": "npm run sandbox && npm run generate-env && npm run dev",
     "ci-deploy": "CI=true node scripts/deploy-pipeline.js",
-    "check-amplify": "node scripts/check-amplify-deployment.js"
+    "check-amplify": "node scripts/check-amplify-deployment.js",
+    "verify-build": "node scripts/verify-amplify-build.js"
   },
   "dependencies": {
     "@aws-sdk/types": "^3.775.0",

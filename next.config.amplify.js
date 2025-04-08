@@ -3,6 +3,7 @@ const nextConfig = {
   output: 'standalone',
   experimental: {
     optimizePackageImports: ['react', 'react-dom'],
+    serverComponentsExternalPackages: ['sharp'],
   },
   // Disable edge runtime to avoid warnings
   experimental: {
