@@ -18,14 +18,13 @@ applications:
             - npm run amplify:build
             - echo "=== BUILD COMPLETED ==="
       artifacts:
-        baseDirectory: .
+        baseDirectory: standalone
         files:
           - '**/*'
           - '.next/**/*'
           - 'public/**/*'
           - 'package.json'
           - 'next.config.js'
-          - 'standalone/**/*'
       cache:
         paths:
           - node_modules/**/*

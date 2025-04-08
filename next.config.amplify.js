@@ -4,6 +4,11 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['react', 'react-dom'],
   },
+  // Disable edge runtime to avoid warnings
+  experimental: {
+    runtime: 'nodejs',
+    serverComponents: true,
+  },
   optimizeFonts: true,
   swcMinify: true,
   images: {

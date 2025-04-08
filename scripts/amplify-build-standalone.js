@@ -1,5 +1,6 @@
 import { execSync } from 'child_process';
-import { existsSync, rmSync } from 'fs';
+import { existsSync, rmSync, statSync, mkdirSync } from 'fs';
+
 
 function log(message) {
   console.log(`[${new Date().toISOString()}] ${message}`);
@@ -11,6 +12,9 @@ async function build() {
     log('Cleaning previous build...');
     if (existsSync('.next')) {
       rmSync('.next', { recursive: true, force: true });
+    }
+    if (existsSync('standalone')) {
+      rmSync('standalone', { recursive: true, force: true });
     }
 
     // Set environment variables
@@ -27,14 +31,28 @@ async function build() {
       '.next/required-server-files.json',
       '.next/build-manifest.json',
       '.next/prerender-manifest.json',
-      '.next/server/pages-manifest.json'
+      '.next/server/pages-manifest.json',
+      '.next/static',
+      'standalone'
     ];
 
     for (const file of requiredFiles) {
       if (!existsSync(file)) {
-        throw new Error(`Missing required file: ${file}`);
+        throw new Error(`Missing required file/directory: ${file}`);
       }
-      log(`✓ Found ${file}`);
+      const isDirectory = statSync(file).isDirectory();
+      log(`✓ Found ${isDirectory ? 'directory' : 'file'}: ${file}`);
+    }
+
+    // Copy necessary files to standalone directory
+    log('Setting up standalone directory...');
+    if (!existsSync('standalone/.next')) {
+      mkdirSync('standalone/.next', { recursive: true });
+    }
+    
+    // Copy public directory if it exists
+    if (existsSync('public')) {
+      execSync('cp -r public standalone/');
     }
 
     log('Build completed successfully!');
