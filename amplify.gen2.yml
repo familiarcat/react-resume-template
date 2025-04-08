@@ -17,14 +17,7 @@ applications:
             - export NEXT_TELEMETRY_DISABLED=1
             - cp next.config.amplify.js next.config.js
             - npm run build
-            - echo "=== Preparing standalone build ==="
-            - mkdir -p .next/standalone/.next/static
-            - cp -r .next/static/* .next/standalone/.next/static/
-            - cp -r .next/required-server-files.json .next/standalone/.next/
-            - cp -r .next/build-manifest.json .next/standalone/.next/
-            - cp -r .next/server .next/standalone/.next/
-            - cp -r public .next/standalone/
-            - cp package.json .next/standalone/
+            - echo "=== Verifying build output ==="
             - node scripts/verify-amplify-build.js
       artifacts:
         baseDirectory: .next/standalone

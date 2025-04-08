@@ -11,8 +11,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build --no-lint && node scripts/verify-amplify-build.js",
-    "build:standalone": "cp next.config.amplify.js next.config.js && next build --no-lint && node scripts/verify-amplify-build.js",
+    "build": "next build",
+    "build:standalone": "cp next.config.amplify.js next.config.js && next build && node scripts/verify-amplify-build.js",
     "amplify:build": "bash ./scripts/amplify-gen2-build.sh",
     "verify": "node scripts/verify-amplify-build.js",
     "clean": "rm -rf .next out node_modules/.cache",
