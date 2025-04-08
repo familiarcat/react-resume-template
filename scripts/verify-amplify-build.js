@@ -1,5 +1,6 @@
-import { existsSync, readdirSync } from 'fs';
-import { join } from 'path';
+/* eslint-disable @typescript-eslint/no-require-imports */
+const { existsSync, readdirSync } = require('fs');
+const { join } = require('path');
 
 function log(message) {
   console.log(`[Verify Build] ${message}`);
