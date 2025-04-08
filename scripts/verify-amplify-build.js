@@ -1,47 +1,33 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-const { existsSync, readdirSync, statSync, mkdirSync } = require('fs');
+const { existsSync, readdirSync, statSync, mkdirSync, copyFileSync } = require('fs');
 const { join } = require('path');
 
 function log(message) {
   console.log(`[${new Date().toISOString()}] ${message}`);
 }
 
-function ensureDirectory(dir) {
+function verifyAndCopyFile(src, dest) {
+  if (!existsSync(src)) {
+    throw new Error(`Missing required file: ${src}`);
+  }
+  const destDir = dest.split('/').slice(0, -1).join('/');
+  if (!existsSync(destDir)) {
+    mkdirSync(destDir, { recursive: true });
+  }
+  copyFileSync(src, dest);
+  log(`✓ Verified and copied: ${src} -> ${dest}`);
+}
+
+function verifyDirectory(dir, create = false) {
   if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-    log(`Created directory: ${dir}`);
-  }
-  return dir;
-}
-
-function verifyDirectory(dir, required = false) {
-  if (existsSync(dir)) {
-    log(`✓ Directory exists: ${dir}`);
-    const stats = statSync(dir);
-    if (!stats.isDirectory()) {
-      throw new Error(`Path exists but is not a directory: ${dir}`);
+    if (create) {
+      mkdirSync(dir, { recursive: true });
+      log(`Created directory: ${dir}`);
+    } else {
+      throw new Error(`Required directory missing: ${dir}`);
     }
-    return true;
-  } else if (required) {
-    // Create the directory instead of throwing an error
-    ensureDirectory(dir);
-    return true;
   }
-  return false;
-}
-
-function verifyFile(filepath, required = false) {
-  if (existsSync(filepath)) {
-    log(`✓ File exists: ${filepath}`);
-    const stats = statSync(filepath);
-    if (!stats.isFile()) {
-      throw new Error(`Path exists but is not a file: ${filepath}`);
-    }
-    return true;
-  } else if (required) {
-    throw new Error(`Required file missing: ${filepath}`);
-  }
-  return false;
+  log(`✓ Directory exists: ${dir}`);
 }
 
 function verifyBuild() {
@@ -50,35 +36,78 @@ function verifyBuild() {
   const standaloneNextDir = join(standaloneDir, '.next');
 
   // Verify directory structure
-  verifyDirectory(nextDir, true);
+  verifyDirectory(nextDir);
   verifyDirectory(standaloneDir, true);
   verifyDirectory(standaloneNextDir, true);
 
-  // Required files
-  const requiredFiles = [
-    { path: join(nextDir, 'required-server-files.json'), name: 'Required server files' },
-    { path: join(nextDir, 'build-manifest.json'), name: 'Build manifest' },
-    { path: join(standaloneDir, 'server.js'), name: 'Server entry' },
-    { path: join(standaloneNextDir, 'required-server-files.json'), name: 'Standalone required server files' }
+  // Required files and their destinations
+  const filesToCopy = [
+    {
+      src: join(nextDir, 'required-server-files.json'),
+      dest: join(standaloneNextDir, 'required-server-files.json')
+    },
+    {
+      src: join(nextDir, 'build-manifest.json'),
+      dest: join(standaloneNextDir, 'build-manifest.json')
+    },
+    {
+      src: join(process.cwd(), 'package.json'),
+      dest: join(standaloneDir, 'package.json')
+    }
   ];
 
-  // Verify each required file
-  requiredFiles.forEach(file => {
-    verifyFile(file.path, true);
+  // Verify and copy each required file
+  filesToCopy.forEach(({ src, dest }) => {
+    verifyAndCopyFile(src, dest);
   });
 
-  // List standalone directory contents
-  if (verifyDirectory(standaloneDir)) {
-    const contents = readdirSync(standaloneDir);
-    log('\nStandalone directory contents:');
-    contents.forEach(item => {
-      const itemPath = join(standaloneDir, item);
-      const stats = statSync(itemPath);
-      log(`  ${stats.isDirectory() ? 'd' : 'f'} ${item}`);
-    });
+  // Copy static files
+  const staticDir = join(nextDir, 'static');
+  const standaloneStaticDir = join(standaloneNextDir, 'static');
+  if (existsSync(staticDir)) {
+    verifyDirectory(standaloneStaticDir, true);
+    // Copy static files recursively
+    copyDir(staticDir, standaloneStaticDir);
   }
 
+  // Copy public directory if it exists
+  const publicDir = join(process.cwd(), 'public');
+  if (existsSync(publicDir)) {
+    const standalonePublicDir = join(standaloneDir, 'public');
+    verifyDirectory(standalonePublicDir, true);
+    copyDir(publicDir, standalonePublicDir);
+  }
+
+  log('\nStandalone directory contents:');
+  listDirectoryContents(standaloneDir);
+  
   log('\nBuild verification completed successfully');
+}
+
+function copyDir(src, dest) {
+  if (!existsSync(dest)) {
+    mkdirSync(dest, { recursive: true });
+  }
+  const entries = readdirSync(src, { withFileTypes: true });
+  for (const entry of entries) {
+    const srcPath = join(src, entry.name);
+    const destPath = join(dest, entry.name);
+    if (entry.isDirectory()) {
+      copyDir(srcPath, destPath);
+    } else {
+      copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
+function listDirectoryContents(dir, indent = '') {
+  const entries = readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    log(`${indent}${entry.isDirectory() ? 'd' : 'f'} ${entry.name}`);
+    if (entry.isDirectory()) {
+      listDirectoryContents(join(dir, entry.name), `${indent}  `);
+    }
+  }
 }
 
 try {
