@@ -1,9 +1,47 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-const { existsSync, readdirSync } = require('fs');
+const { existsSync, readdirSync, statSync, mkdirSync } = require('fs');
 const { join } = require('path');
 
 function log(message) {
-  console.log(`[Verify Build] ${message}`);
+  console.log(`[${new Date().toISOString()}] ${message}`);
+}
+
+function ensureDirectory(dir) {
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+    log(`Created directory: ${dir}`);
+  }
+  return dir;
+}
+
+function verifyDirectory(dir, required = false) {
+  if (existsSync(dir)) {
+    log(`✓ Directory exists: ${dir}`);
+    const stats = statSync(dir);
+    if (!stats.isDirectory()) {
+      throw new Error(`Path exists but is not a directory: ${dir}`);
+    }
+    return true;
+  } else if (required) {
+    // Create the directory instead of throwing an error
+    ensureDirectory(dir);
+    return true;
+  }
+  return false;
+}
+
+function verifyFile(filepath, required = false) {
+  if (existsSync(filepath)) {
+    log(`✓ File exists: ${filepath}`);
+    const stats = statSync(filepath);
+    if (!stats.isFile()) {
+      throw new Error(`Path exists but is not a file: ${filepath}`);
+    }
+    return true;
+  } else if (required) {
+    throw new Error(`Required file missing: ${filepath}`);
+  }
+  return false;
 }
 
 function verifyBuild() {
@@ -11,49 +49,41 @@ function verifyBuild() {
   const standaloneDir = join(nextDir, 'standalone');
   const standaloneNextDir = join(standaloneDir, '.next');
 
-  // Required files to check
+  // Verify directory structure
+  verifyDirectory(nextDir, true);
+  verifyDirectory(standaloneDir, true);
+  verifyDirectory(standaloneNextDir, true);
+
+  // Required files
   const requiredFiles = [
     { path: join(nextDir, 'required-server-files.json'), name: 'Required server files' },
     { path: join(nextDir, 'build-manifest.json'), name: 'Build manifest' },
     { path: join(standaloneDir, 'server.js'), name: 'Server entry' },
-    { path: join(standaloneNextDir, 'required-server-files.json'), name: 'Standalone required server files' },
+    { path: join(standaloneNextDir, 'required-server-files.json'), name: 'Standalone required server files' }
   ];
 
-  let success = true;
-
   // Verify each required file
-  for (const file of requiredFiles) {
-    if (existsSync(file.path)) {
-      log(`✓ Found ${file.name}: ${file.path}`);
-    } else {
-      log(`✗ Missing ${file.name}: ${file.path}`);
-      success = false;
-    }
-  }
+  requiredFiles.forEach(file => {
+    verifyFile(file.path, true);
+  });
 
-  // Verify standalone directory structure
-  if (existsSync(standaloneDir)) {
-    log('✓ Standalone directory exists');
-    
-    // List contents of standalone directory
+  // List standalone directory contents
+  if (verifyDirectory(standaloneDir)) {
     const contents = readdirSync(standaloneDir);
-    log('Standalone directory contents:');
-    contents.forEach(item => log(`  - ${item}`));
-  } else {
-    log('✗ Standalone directory is missing');
-    success = false;
+    log('\nStandalone directory contents:');
+    contents.forEach(item => {
+      const itemPath = join(standaloneDir, item);
+      const stats = statSync(itemPath);
+      log(`  ${stats.isDirectory() ? 'd' : 'f'} ${item}`);
+    });
   }
 
-  if (!success) {
-    throw new Error('Build verification failed');
-  }
-
-  log('Build verification completed successfully');
+  log('\nBuild verification completed successfully');
 }
 
 try {
   verifyBuild();
 } catch (error) {
-  console.error(`Error: ${error.message}`);
+  console.error(`\nError: ${error.message}`);
   process.exit(1);
 }

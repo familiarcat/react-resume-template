@@ -1,48 +1,42 @@
 #!/bin/bash
-
 set -e
 
-echo "=== AWS Amplify Gen 2 Build Script ==="
+log() {
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+}
 
-# Check Node.js version
-echo "Node.js version: $(node --version)"
-echo "NPM version: $(npm --version)"
+cleanup() {
+  log "Cleaning up previous build artifacts..."
+  rm -rf .next
+  rm -rf node_modules/.cache
+}
 
-# Clean up
-echo "Cleaning up..."
-rm -rf .next
+setup_env() {
+  log "Setting up environment..."
+  export NODE_OPTIONS="--max-old-space-size=4096"
+  export NODE_ENV=production
+  export NEXT_TELEMETRY_DISABLED=1
+}
 
-# Install dependencies
-echo "Installing dependencies..."
-npm ci --legacy-peer-deps
-npm install sharp --no-save
+prepare_build() {
+  log "Preparing build environment..."
+  node scripts/prepare-build.js
+}
 
-# Set up environment
-echo "Setting up environment..."
-export NODE_OPTIONS="--max-old-space-size=4096"
-export NODE_ENV=production
-export NEXT_TELEMETRY_DISABLED=1
+build() {
+  log "Starting build process..."
+  npm run build:standalone
+}
 
-# Copy the Amplify config
-echo "Copying Amplify config..."
-cp next.config.amplify.js next.config.js
+main() {
+  log "=== Starting Amplify Gen 2 Build ==="
+  
+  cleanup
+  setup_env
+  prepare_build
+  build
+  
+  log "=== Build completed successfully ==="
+}
 
-# Run the build
-echo "Running build..."
-npm run build
-
-# Verify build output
-echo "Verifying build output..."
-node scripts/verify-build.js
-
-# Check if build was successful
-if [ -f ".next/required-server-files.json" ]; then
-  echo "Build successful!"
-  echo "Contents of .next directory:"
-  ls -la .next
-else
-  echo "Build failed: required-server-files.json not found!"
-  exit 1
-fi
-
-echo "=== Build completed successfully ==="
+main

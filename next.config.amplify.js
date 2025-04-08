@@ -5,13 +5,11 @@ const nextConfig = {
     optimizePackageImports: ['react', 'react-dom'],
     serverComponentsExternalPackages: ['sharp'],
   },
-  // Disable edge runtime to avoid warnings
-  experimental: {
-    runtime: 'nodejs',
-    serverComponents: true,
-  },
   optimizeFonts: true,
   swcMinify: true,
+  compress: true,
+  poweredByHeader: false,
+  generateEtags: true,
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -22,7 +20,7 @@ const nextConfig = {
     ],
   },
   generateBuildId: async () => {
-    return 'build-' + Date.now();
+    return `build-${Date.now()}`;
   },
 };
 

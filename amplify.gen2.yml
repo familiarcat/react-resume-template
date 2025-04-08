@@ -5,9 +5,10 @@ applications:
         preBuild:
           commands:
             - echo "=== PRE-BUILD STARTED ==="
+            - node --version
+            - npm --version
             - npm ci --legacy-peer-deps
             - npm install sharp --no-save
-            - echo "=== PRE-BUILD COMPLETED ==="
         build:
           commands:
             - echo "=== BUILD STARTED ==="
@@ -16,11 +17,12 @@ applications:
             - export NEXT_TELEMETRY_DISABLED=1
             - cp next.config.amplify.js next.config.js
             - npm run build
-            - echo "Copying required files..."
-            - cp -r .next/standalone/* .
-            - cp -r .next/static .next/standalone/.next/
+            - echo "=== Preparing standalone build ==="
+            - mkdir -p .next/standalone/.next/static
+            - cp -r .next/static/* .next/standalone/.next/static/
             - cp .next/required-server-files.json .next/standalone/.next/
-            - echo "=== BUILD COMPLETED ==="
+            - cp -r public .next/standalone/
+            - node scripts/verify-amplify-build.js
       artifacts:
         baseDirectory: .next/standalone
         files:
