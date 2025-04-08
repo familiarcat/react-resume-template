@@ -15,16 +15,17 @@ applications:
             - export NODE_ENV=production
             - export NEXT_TELEMETRY_DISABLED=1
             - cp next.config.amplify.js next.config.js
-            - npm run build
+            - npm run amplify:build
             - echo "=== BUILD COMPLETED ==="
       artifacts:
-        baseDirectory: .next
+        baseDirectory: .
         files:
           - '**/*'
-          - '../public/**/*'
-          - '../package.json'
-          - '../next.config.js'
-          - '../standalone/**/*'
+          - '.next/**/*'
+          - 'public/**/*'
+          - 'package.json'
+          - 'next.config.js'
+          - 'standalone/**/*'
       cache:
         paths:
           - node_modules/**/*
