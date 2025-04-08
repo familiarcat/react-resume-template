@@ -8,10 +8,9 @@ backend:
         - nvm use 18.19.0
         - npm --version
         - node --version
-        - npm run fix-dependencies
     build:
       commands:
-        - npm ci
+        - npm ci --legacy-peer-deps
         - npm run generate-env
 frontend:
   phases:
@@ -22,11 +21,10 @@ frontend:
         - nvm use 18.19.0
         - npm --version
         - node --version
-        - npm run fix-dependencies
         - npm ci --legacy-peer-deps
     build:
       commands:
-        - npm run amplify-build
+        - npm run build
   artifacts:
     baseDirectory: .next
     files:

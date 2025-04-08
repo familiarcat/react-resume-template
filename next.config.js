@@ -6,47 +6,18 @@ const nextConfig = {
   experimental: {
     // Enable optimizations
     optimizePackageImports: ['react', 'react-dom'],
-    // Improve server components
-    serverComponentsExternalPackages: ['aws-amplify'],
   },
-  webpack: config => {
+  webpack: (config, { isServer }) => {
     const oneOfRule = config.module.rules.find(rule => rule.oneOf);
     const tsRules = oneOfRule.oneOf.filter(rule => rule.test && rule.test.toString().includes('tsx|ts'));
     tsRules.forEach(rule => {
       rule.include = undefined;
     });
 
-    // Fix module format issues
-    config.module.rules.push({
-      test: /\.m?js$/,
-      type: 'javascript/auto',
-      resolve: {
-        fullySpecified: false,
-      },
-    });
-
-    // Handle module resolution
-    config.resolve.alias = {
-      ...config.resolve.alias,
-    };
-
-    // Ensure we're using the correct module format
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      'aws-crt': false,
-    };
-
-    // Optimize chunk size with simpler settings
-    config.optimization.splitChunks = {
-      chunks: 'all',
-      cacheGroups: {
-        vendor: {
-          name: 'vendors',
-          test: /node_modules/,
-          chunks: 'all',
-        },
-      },
-    };
+    // For server-side code that imports client-side libraries
+    if (isServer) {
+      config.externals = [...(config.externals || []), 'aws-amplify'];
+    }
 
     return config;
   },
@@ -55,7 +26,7 @@ const nextConfig = {
   pageExtensions: ['tsx', 'mdx', 'ts'],
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
-  reactStrictMode: true,
+  reactStrictMode: false, // Disabled to avoid double-rendering issues
   trailingSlash: false,
   // Optimize loading and performance
   optimizeFonts: true,
@@ -67,13 +38,18 @@ const nextConfig = {
     pagesBufferLength: 5,
   },
   images: {
-    domains: ['your-image-domain.com'], // Add your image domains here
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cloudflare-ipfs.com',
+        pathname: '/ipfs/**',
+      },
       {
         protocol: 'https',
         hostname: '**',
       },
     ],
+    unoptimized: process.env.NODE_ENV === 'development',
   },
 };
 

@@ -30,7 +30,7 @@
 3. Styled entirely with [TailwindCss](https://tailwindcss.com/)
 4. Re-organized data population file for customizing site.
 5. Significant improvement/modernization of all site sections
- 
+
 **Looking for the old version? You can find it [here.](https://github.com/tbakerx/react-resume-template/releases/tag/v1.0.0)**
 
 ## Description
@@ -53,7 +53,7 @@ Once you have your own copy of this repo forked and downloaded, open the folder 
 
 ### 4. Customize the data to make it your own
 
-All of the data for the site is driven via a file at `/src/data/data.tsx`. This is where you'll find the existing content, and updating the values here will be reflected on the site. If you have the site running as described above, you should see these changes reflected on save. The data types for all of these items are given in the same folder in the `dataDef.ts` file. Example images can be found at `src/images/` and are imported in the data file. To change, simply update these images using the same name and location, or add new images and update the imports. 
+All of the data for the site is driven via a file at `/src/data/data.tsx`. This is where you'll find the existing content, and updating the values here will be reflected on the site. If you have the site running as described above, you should see these changes reflected on save. The data types for all of these items are given in the same folder in the `dataDef.ts` file. Example images can be found at `src/images/` and are imported in the data file. To change, simply update these images using the same name and location, or add new images and update the imports.
 
 ### 5. Hook up contact form
 Due to the variety of options available for contact form providers, I've hooked up the contact form only so far as handling inputs and state. Form submission and the actual sending of the email is open to your own implementation. My personal recommendation for email provider is [Sendgrid.](https://sendgrid.com/)
@@ -62,9 +62,38 @@ Due to the variety of options available for contact form providers, I've hooked 
 
 Of course, all of the code is there and nothing is hidden from you so if you would like to make any other styling/data changes, feel free!
 
-### 7. Deploy to Vercel and enjoy your new Resume Website
+### 7. Deploy to Vercel or AWS Amplify
 
+#### Vercel Deployment
 Deploying your new site to Vercel is simple, and can be done by following their guide [here.](https://vercel.com/guides/deploying-nextjs-with-vercel) When you're all done and the build succeeds, you should be given a url for your live site, go there and you'll see your new personal resume website! Congratulations!
+
+#### AWS Amplify Deployment
+To deploy to AWS Amplify, follow these steps:
+
+1. **Create a new Amplify app**
+   - Go to the [AWS Amplify Console](https://console.aws.amazon.com/amplify/home)
+   - Click "New app" > "Host web app"
+   - Choose your Git provider and repository
+   - Follow the setup wizard
+
+2. **Configure build settings**
+   - Amplify should automatically detect that this is a Next.js app
+   - Make sure the Node.js version is set to 18.19.0 or higher
+   - The build settings are defined in the `amplify.yml` file
+
+3. **Deploy the app**
+   - Click "Save and deploy"
+   - Amplify will clone your repository and start the build process
+   - Once complete, you'll get a URL for your deployed site
+
+**Troubleshooting AWS Amplify Deployments**
+
+If you encounter issues with deployment:
+
+1. Check the build logs for any errors
+2. Make sure you're using Node.js 18.19.0 or higher
+3. Try redeploying with the "Clear cache and redeploy" option
+4. If issues persist, check the AWS Amplify documentation for troubleshooting steps
 
 ## Project Created & Maintained By
 

@@ -132,6 +132,7 @@ const Testimonial: FC<{testimonial: Testimonial; isActive: boolean}> = memo(
             fill
             sizes="(max-width: 768px) 56px, 64px"
             style={{objectFit: 'cover'}}
+            unoptimized={process.env.NODE_ENV === 'development'}
           />
         </div>
       ) : (
