@@ -1,9 +1,6 @@
 #!/bin/bash
 
-# This script is a simplified build script for AWS Amplify Gen 2
-# It handles the build process with better error handling and logging
-
-set -e # Exit on error
+set -e
 
 echo "=== AWS Amplify Gen 2 Build Script ==="
 
@@ -34,13 +31,17 @@ cp next.config.amplify.js next.config.js
 echo "Running build..."
 npm run build
 
+# Verify build output
+echo "Verifying build output..."
+node scripts/verify-build.js
+
 # Check if build was successful
-if [ -f ".next/build-manifest.json" ]; then
+if [ -f ".next/required-server-files.json" ]; then
   echo "Build successful!"
   echo "Contents of .next directory:"
   ls -la .next
 else
-  echo "Build failed!"
+  echo "Build failed: required-server-files.json not found!"
   exit 1
 fi
 

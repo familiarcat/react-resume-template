@@ -1,15 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Experimental features
+  output: 'standalone',
   experimental: {
-    // Enable optimizations
     optimizePackageImports: ['react', 'react-dom'],
   },
-  // Optimize loading and performance
   optimizeFonts: true,
   swcMinify: true,
   images: {
-    unoptimized: true, // Disable image optimization for Amplify
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -17,8 +15,6 @@ const nextConfig = {
       },
     ],
   },
-  // Don't use standalone output for Amplify
-  // output: 'standalone',
 };
 
 module.exports = nextConfig;

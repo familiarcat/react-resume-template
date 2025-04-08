@@ -21,6 +21,10 @@ applications:
         baseDirectory: .next
         files:
           - '**/*'
+          - '../public/**/*'
+          - '../package.json'
+          - '../next.config.js'
+          - '../standalone/**/*'
       cache:
         paths:
           - node_modules/**/*
