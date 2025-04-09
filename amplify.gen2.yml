@@ -5,6 +5,7 @@ applications:
         preBuild:
           commands:
             - echo "=== PRE-BUILD STARTED ==="
+            - bash ./scripts/amplify-node-setup.sh
             - node --version
             - npm --version
             - npm ci --legacy-peer-deps
@@ -19,8 +20,6 @@ applications:
             - next build
             - echo "=== Verifying build output ==="
             - node scripts/verify-next-output.js
-            - echo "=== Preparing standalone build ==="
-            - node scripts/verify-amplify-build.js
       artifacts:
         baseDirectory: .next/standalone
         files:

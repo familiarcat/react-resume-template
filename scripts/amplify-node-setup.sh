@@ -1,51 +1,132 @@
 #!/bin/bash
+set -e
 
-# This script sets up Node.js for AWS Amplify builds
-# It doesn't rely on nvm, which might not be available in all environments
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+}
 
-echo "=== Setting up Node.js for Amplify ==="
+REQUIRED_NODE_VERSION="18.19.0"
+REQUIRED_NPM_VERSION="9.8.1"
 
-# Check if we're already using the right Node.js version
-CURRENT_NODE_VERSION=$(node --version 2>/dev/null || echo "none")
-TARGET_NODE_VERSION="v18.19.0"
+# Function to compare versions
+version_compare() {
+    if [[ $1 == $2 ]]; then
+        return 0
+    fi
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++)); do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++)); do
+        if [[ -z ${ver2[i]} ]]; then
+            ver2[i]=0
+        fi
+        if ((10#${ver1[i]} > 10#${ver2[i]})); then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]})); then
+            return 2
+        fi
+    done
+    return 0
+}
 
-echo "Current Node.js version: $CURRENT_NODE_VERSION"
-echo "Target Node.js version: $TARGET_NODE_VERSION"
+# Function to extract version number without 'v' prefix
+clean_version() {
+    echo "${1#v}"
+}
 
-if [ "$CURRENT_NODE_VERSION" = "$TARGET_NODE_VERSION" ]; then
-  echo "Already using the correct Node.js version"
-  exit 0
-fi
+# Function to verify Node.js installation
+verify_node() {
+    if ! command -v node &> /dev/null; then
+        return 1
+    fi
+    local current_version=$(clean_version "$(node --version)")
+    local required_version=$(clean_version "$REQUIRED_NODE_VERSION")
+    version_compare "$current_version" "$required_version"
+    return $?
+}
 
-# Try to use nvm if available
-if command -v nvm &> /dev/null; then
-  echo "nvm is available, using it to install Node.js"
-  nvm install 18.19.0
-  nvm use 18.19.0
-  exit $?
-fi
+# Function to verify npm installation
+verify_npm() {
+    if ! command -v npm &> /dev/null; then
+        return 1
+    fi
+    local current_version=$(clean_version "$(npm --version)")
+    local required_version=$(clean_version "$REQUIRED_NPM_VERSION")
+    version_compare "$current_version" "$required_version"
+    return $?
+}
 
-# If nvm is not available, try to install Node.js directly
-echo "nvm not available, trying to install Node.js directly"
+# Function to install Node.js using n
+install_with_n() {
+    log "Installing n..."
+    curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o n
+    bash n "$REQUIRED_NODE_VERSION"
+    rm n
+    # Refresh PATH
+    export PATH="/usr/local/bin:$PATH"
+}
 
-# Check if we're running on Amazon Linux
-if [ -f /etc/os-release ]; then
-  . /etc/os-release
-  if [[ "$ID" == "amzn" ]]; then
-    echo "Running on Amazon Linux, using yum to install Node.js"
-    curl -sL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
-    sudo yum install -y nodejs
-    exit $?
-  fi
-fi
+# Function to install Node.js using NodeSource
+install_with_nodesource() {
+    log "Installing Node.js from NodeSource..."
+    if command -v apt-get &> /dev/null; then
+        curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+    elif command -v yum &> /dev/null; then
+        curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
+        sudo yum install -y nodejs
+    else
+        return 1
+    fi
+}
 
-# For other Linux distributions, try to use the NodeSource repository
-if command -v apt-get &> /dev/null; then
-  echo "apt-get is available, using it to install Node.js"
-  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-  sudo apt-get install -y nodejs
-  exit $?
-fi
+main() {
+    log "Starting Node.js setup..."
+    log "Required Node.js version: $REQUIRED_NODE_VERSION"
+    log "Required npm version: $REQUIRED_NPM_VERSION"
 
-echo "Could not install Node.js 18.19.0"
-exit 1
+    # Check current versions
+    if command -v node &> /dev/null; then
+        log "Current Node.js version: $(node --version)"
+    fi
+    if command -v npm &> /dev/null; then
+        log "Current npm version: $(npm --version)"
+    fi
+
+    # Try to use nvm if available
+    if [ -f "$HOME/.nvm/nvm.sh" ]; then
+        log "Using nvm..."
+        export NVM_DIR="$HOME/.nvm"
+        . "$NVM_DIR/nvm.sh"
+        nvm install "$REQUIRED_NODE_VERSION"
+        nvm use "$REQUIRED_NODE_VERSION"
+    # Try to use n
+    elif command -v curl &> /dev/null; then
+        log "Attempting installation with n..."
+        install_with_n
+    # Try NodeSource
+    else
+        log "Attempting installation with NodeSource..."
+        install_with_nodesource
+    fi
+
+    # Verify installation
+    if ! verify_node; then
+        log "ERROR: Failed to install required Node.js version"
+        exit 1
+    fi
+
+    if ! verify_npm; then
+        log "ERROR: Failed to install required npm version"
+        exit 1
+    fi
+
+    log "Node.js setup completed successfully"
+    log "Node.js version: $(node --version)"
+    log "npm version: $(npm --version)"
+}
+
+main
