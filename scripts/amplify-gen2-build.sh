@@ -26,6 +26,10 @@ prepare_build() {
 build() {
   log "Starting build process..."
   next build --no-lint
+  
+  # Immediate verification after build
+  log "Verifying build output..."
+  node scripts/verify-next-output.js
 }
 
 prepare_standalone() {
@@ -39,8 +43,8 @@ prepare_standalone() {
   cp package.json .next/standalone/
 }
 
-verify() {
-  log "Verifying build..."
+verify_final() {
+  log "Performing final verification..."
   node scripts/verify-amplify-build.js
 }
 
@@ -52,7 +56,7 @@ main() {
   prepare_build
   build
   prepare_standalone
-  verify
+  verify_final
   
   log "=== Build completed successfully ==="
 }

@@ -16,8 +16,10 @@ applications:
             - export NODE_ENV=production
             - export NEXT_TELEMETRY_DISABLED=1
             - cp next.config.amplify.js next.config.js
-            - npm run build
+            - next build
             - echo "=== Verifying build output ==="
+            - node scripts/verify-next-output.js
+            - echo "=== Preparing standalone build ==="
             - node scripts/verify-amplify-build.js
       artifacts:
         baseDirectory: .next/standalone
