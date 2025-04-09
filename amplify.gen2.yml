@@ -10,7 +10,6 @@ applications:
             - node --version
             - npm --version
             - npm ci --legacy-peer-deps
-            - npm install sharp --no-save
         build:
           commands:
             - echo "=== BUILD STARTED ==="
@@ -19,14 +18,12 @@ applications:
             - export NEXT_TELEMETRY_DISABLED=1
             - cp next.config.amplify.js next.config.js
             - next build
-            - echo "=== Verifying build output ==="
-            - node scripts/verify-next-output.js
+            - echo "=== BUILD COMPLETED ==="
       artifacts:
-        baseDirectory: .next/standalone
+        baseDirectory: out  # Changed from .next/standalone to out
         files:
           - '**/*'
       cache:
         paths:
           - node_modules/**/*
-          - .next/cache/**/*
     appRoot: .
