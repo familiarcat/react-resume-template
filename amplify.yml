@@ -5,9 +5,7 @@ frontend:
       commands:
         - echo "=== PRE-BUILD STARTED ==="
         - echo "Setting up Node.js..."
-        - bash ./scripts/amplify-node-setup.sh || (echo "Failed to set up Node.js" && exit 1)
-        - node --version
-        - npm --version
+        - bash ./scripts/amplify-node-setup-simple.sh
         - echo "Installing dependencies..."
         - npm ci --legacy-peer-deps
         - npm install sharp --no-save
@@ -19,7 +17,7 @@ frontend:
         - export NODE_ENV=production
         - export NEXT_TELEMETRY_DISABLED=1
         - cp next.config.amplify.js next.config.js
-        - npm run amplify:build
+        - npm run amplify:build:minimal
         - echo "=== BUILD COMPLETED ==="
         - echo "Contents of .next directory:"
         - ls -la .next
