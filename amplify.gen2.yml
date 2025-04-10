@@ -20,7 +20,7 @@ applications:
             - echo "=== BUILD COMPLETED ==="
       buildPath: /
       artifacts:
-        baseDirectory: out    # Changed to 'out' directory for static export
+        baseDirectory: out
         files:
           - '**/*'
         discard-paths: false
@@ -28,4 +28,4 @@ applications:
         paths:
           - node_modules/**/*
           - .next/cache/**/*
-    appRoot: .
+    appRoot: /
