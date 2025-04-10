@@ -5,10 +5,9 @@ applications:
         preBuild:
           commands:
             - echo "=== PRE-BUILD STARTED ==="
-            - npm install -g npm@9.8.1
-            - node --version
-            - npm --version
             - npm ci --legacy-peer-deps
+            - npm install sharp --no-save
+            - echo "=== PRE-BUILD COMPLETED ==="
         build:
           commands:
             - echo "=== BUILD STARTED ==="
@@ -16,16 +15,14 @@ applications:
             - export NODE_ENV=production
             - export NEXT_TELEMETRY_DISABLED=1
             - cp next.config.amplify.js next.config.js
-            - next build
+            - npm run build
             - echo "=== BUILD COMPLETED ==="
-      buildPath: /
       artifacts:
-        baseDirectory: out
+        baseDirectory: .next
         files:
           - '**/*'
-        discard-paths: false
       cache:
         paths:
           - node_modules/**/*
           - .next/cache/**/*
-    appRoot: /
+    appRoot: .

@@ -1,0 +1,174 @@
+{
+  "id": "sample-resume-id",
+  "title": "Full Stack Developer Resume",
+  "summaryId": "sample-summary-id",
+  "contactInformationId": "sample-contact-id",
+  "educationId": "sample-education-id",
+  "experienceId": "sample-experience-id",
+  "summary": {
+    "id": "sample-summary-id",
+    "goals": "To drive innovation by blending cutting-edge technology with creative design and agile best practices.",
+    "persona": "A versatile, team-oriented leader with a strong balance of creative vision and technical proficiency.",
+    "url": "https://example.com",
+    "headshot": "https://example.com/headshot.jpg",
+    "gptResponse": "Experienced full stack developer with a passion for creating elegant solutions to complex problems.",
+    "resume": "sample-resume-id"
+  },
+  "contactInformation": {
+    "id": "sample-contact-id",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "555-123-4567",
+    "resume": "sample-resume-id",
+    "references": [
+      {
+        "id": "sample-reference-1",
+        "name": "Jane Smith",
+        "phone": "555-987-6543",
+        "email": "jane.smith@example.com",
+        "contactInformationId": "sample-contact-id"
+      },
+      {
+        "id": "sample-reference-2",
+        "name": "Bob Johnson",
+        "phone": "555-567-8901",
+        "email": "bob.johnson@example.com",
+        "contactInformationId": "sample-contact-id"
+      }
+    ]
+  },
+  "education": {
+    "id": "sample-education-id",
+    "summary": "Bachelor's and Master's degrees in Computer Science with a focus on software engineering.",
+    "resume": "sample-resume-id",
+    "schools": [
+      {
+        "id": "sample-school-1",
+        "name": "University of Technology",
+        "educationId": "sample-education-id",
+        "degrees": [
+          {
+            "id": "sample-degree-1",
+            "major": "Computer Science",
+            "startYear": "2010",
+            "endYear": "2014",
+            "schoolId": "sample-school-1"
+          }
+        ]
+      },
+      {
+        "id": "sample-school-2",
+        "name": "State College",
+        "educationId": "sample-education-id",
+        "degrees": [
+          {
+            "id": "sample-degree-2",
+            "major": "Software Engineering",
+            "startYear": "2014",
+            "endYear": "2016",
+            "schoolId": "sample-school-2"
+          }
+        ]
+      }
+    ]
+  },
+  "experience": {
+    "id": "sample-experience-id",
+    "title": "Professional Experience",
+    "text": "Over 8 years of experience in software development.",
+    "gptResponse": "Demonstrated expertise in full stack development with a focus on web technologies.",
+    "resume": "sample-resume-id",
+    "companies": [
+      {
+        "id": "sample-company-1",
+        "name": "Tech Solutions Inc.",
+        "role": "Senior Developer",
+        "startDate": "2016",
+        "endDate": "2020",
+        "title": "Senior Developer",
+        "gptResponse": "Led development of enterprise web applications using React and Node.js.",
+        "experienceId": "sample-experience-id",
+        "engagements": [
+          {
+            "id": "sample-engagement-1",
+            "client": "Major Financial Institution",
+            "startDate": "2018",
+            "endDate": "2020",
+            "gptResponse": "Developed secure banking portal with real-time transaction processing.",
+            "companyId": "sample-company-1"
+          }
+        ],
+        "accomplishments": [
+          {
+            "id": "sample-accomplishment-1",
+            "title": "Reduced API response time by 40%",
+            "description": "Optimized database queries and implemented caching strategies.",
+            "link": "https://example.com/case-study",
+            "companyId": "sample-company-1"
+          }
+        ]
+      },
+      {
+        "id": "sample-company-2",
+        "name": "Innovation Labs",
+        "role": "Lead Architect",
+        "startDate": "2020",
+        "endDate": "Present",
+        "title": "Lead Architect",
+        "gptResponse": "Architected and implemented cloud-native applications using AWS services.",
+        "experienceId": "sample-experience-id",
+        "engagements": [
+          {
+            "id": "sample-engagement-2",
+            "client": "Healthcare Provider",
+            "startDate": "2020",
+            "endDate": "2022",
+            "gptResponse": "Built HIPAA-compliant patient portal with secure data exchange.",
+            "companyId": "sample-company-2"
+          }
+        ],
+        "accomplishments": [
+          {
+            "id": "sample-accomplishment-2",
+            "title": "Implemented CI/CD pipeline",
+            "description": "Reduced deployment time from days to minutes using GitHub Actions and AWS CodePipeline.",
+            "link": "https://example.com/devops-case-study",
+            "companyId": "sample-company-2"
+          }
+        ]
+      }
+    ]
+  },
+  "skills": [
+    {
+      "id": "sample-skill-1",
+      "title": "JavaScript",
+      "link": "https://example.com/javascript",
+      "resumeId": "sample-resume-id"
+    },
+    {
+      "id": "sample-skill-2",
+      "title": "TypeScript",
+      "link": "https://example.com/typescript",
+      "resumeId": "sample-resume-id"
+    },
+    {
+      "id": "sample-skill-3",
+      "title": "React",
+      "link": "https://example.com/react",
+      "resumeId": "sample-resume-id"
+    },
+    {
+      "id": "sample-skill-4",
+      "title": "Node.js",
+      "link": "https://example.com/nodejs",
+      "resumeId": "sample-resume-id"
+    },
+    {
+      "id": "sample-skill-5",
+      "title": "AWS",
+      "link": "https://example.com/aws",
+      "resumeId": "sample-resume-id"
+    }
+  ]
+}

@@ -1,9 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  distDir: '.next',
+  // Experimental features
+  experimental: {
+    // Enable optimizations
+    optimizePackageImports: ['react', 'react-dom'],
+  },
+  // Optimize loading and performance
+  optimizeFonts: true,
+  swcMinify: true,
   images: {
-    unoptimized: true,
+    unoptimized: true, // Disable image optimization for Amplify
     remotePatterns: [
       {
         protocol: 'https',
@@ -11,13 +17,8 @@ const nextConfig = {
       },
     ],
   },
-  // Simplified config for better compatibility
-  typescript: {
-    ignoreBuildErrors: true
-  },
-  eslint: {
-    ignoreDuringBuilds: true
-  }
+  // Don't use standalone output for Amplify
+  // output: 'standalone',
 };
 
 module.exports = nextConfig;

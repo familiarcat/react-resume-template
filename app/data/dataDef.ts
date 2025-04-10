@@ -21,7 +21,7 @@ export interface HomepageMeta {
  * Hero section
  */
 export interface Hero {
-  imageSrc: string;
+  imageSrc: string | StaticImageData;
   name: string;
   description: JSX.Element;
   actions: HeroActionItem[];
@@ -38,7 +38,7 @@ interface HeroActionItem {
  * About section
  */
 export interface About {
-  profileImageSrc?: string;
+  profileImageSrc?: string | StaticImageData;
   description: string;
   aboutItems: AboutItem[];
 }

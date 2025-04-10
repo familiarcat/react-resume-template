@@ -1,44 +1,47 @@
 #!/bin/bash
-set -e
 
-log() {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
-}
+# This script is a simplified build script for AWS Amplify Gen 2
+# It handles the build process with better error handling and logging
 
-cleanup() {
-  log "Cleaning up previous build artifacts..."
-  rm -rf .next
-  rm -rf out
-  rm -rf node_modules/.cache
-}
+set -e # Exit on error
 
-setup_env() {
-  log "Setting up environment..."
-  export NODE_OPTIONS="--max-old-space-size=4096"
-  export NODE_ENV=production
-  export NEXT_TELEMETRY_DISABLED=1
-}
+echo "=== AWS Amplify Gen 2 Build Script ==="
 
-build() {
-  log "Starting build process..."
-  cp next.config.amplify.js next.config.js
-  next build
-}
+# Check Node.js version
+echo "Node.js version: $(node --version)"
+echo "NPM version: $(npm --version)"
 
-main() {
-  log "=== Starting Amplify Gen 2 Build ==="
-  
-  cleanup
-  setup_env
-  build
-  
-  if [ -d "out" ]; then
-    log "=== Build completed successfully ==="
-    exit 0
-  else
-    log "=== Build failed: 'out' directory not found ==="
-    exit 1
-  fi
-}
+# Clean up
+echo "Cleaning up..."
+rm -rf .next
 
-main
+# Install dependencies
+echo "Installing dependencies..."
+npm ci --legacy-peer-deps
+npm install sharp --no-save
+
+# Set up environment
+echo "Setting up environment..."
+export NODE_OPTIONS="--max-old-space-size=4096"
+export NODE_ENV=production
+export NEXT_TELEMETRY_DISABLED=1
+
+# Copy the Amplify config
+echo "Copying Amplify config..."
+cp next.config.amplify.js next.config.js
+
+# Run the build
+echo "Running build..."
+npm run build
+
+# Check if build was successful
+if [ -f ".next/build-manifest.json" ]; then
+  echo "Build successful!"
+  echo "Contents of .next directory:"
+  ls -la .next
+else
+  echo "Build failed!"
+  exit 1
+fi
+
+echo "=== Build completed successfully ==="

@@ -1,6 +1,6 @@
-import {DevicePhoneMobileIcon, EnvelopeIcon, MapPinIcon} from '@heroicons/react/24/outline';
-import classNames from 'classnames';
-import {FC, memo} from 'react';
+import { clsx } from 'clsx';
+import { EnvelopeIcon, PhoneIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import React from 'react';
 
 import {contact, SectionId} from '../../../data/data';
 import {ContactType, ContactValue} from '../../../data/dataDef';
@@ -14,7 +14,7 @@ import ContactForm from './ContactForm';
 
 const ContactValueMap: Record<ContactType, ContactValue> = {
   [ContactType.Email]: {Icon: EnvelopeIcon, srLabel: 'Email'},
-  [ContactType.Phone]: {Icon: DevicePhoneMobileIcon, srLabel: 'Phone'},
+  [ContactType.Phone]: {Icon: PhoneIcon, srLabel: 'Phone'},
   [ContactType.Location]: {Icon: MapPinIcon, srLabel: 'Location'},
   [ContactType.Github]: {Icon: GithubIcon, srLabel: 'Github'},
   [ContactType.LinkedIn]: {Icon: LinkedInIcon, srLabel: 'LinkedIn'},
@@ -23,7 +23,7 @@ const ContactValueMap: Record<ContactType, ContactValue> = {
   [ContactType.Instagram]: {Icon: InstagramIcon, srLabel: 'Instagram'},
 };
 
-const Contact: FC = memo(() => {
+export const Contact: React.FC = () => {
   const {headerText, description, items} = contact;
   return (
     <Section className="bg-neutral-800" sectionId={SectionId.Contact}>
@@ -33,7 +33,7 @@ const Contact: FC = memo(() => {
           <h2 className="text-2xl font-bold text-white">{headerText}</h2>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="order-2 col-span-1 md:order-1 ">
+          <div className="order-2 col-span-1 md:order-1">
             <ContactForm />
           </div>
           <div className="order-1 col-span-1 flex flex-col gap-y-4 md:order-2">
@@ -46,12 +46,13 @@ const Contact: FC = memo(() => {
                     <dt className="sr-only">{srLabel}</dt>
                     <dd className="flex items-center">
                       <a
-                        className={classNames(
+                        className={clsx(
                           '-m-2 flex rounded-md p-2 text-neutral-300 hover:text-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500',
                           {'hover:text-white': href},
                         )}
                         href={href}
-                        target="_blank">
+                        target="_blank"
+                        rel="noopener noreferrer">
                         <Icon aria-hidden="true" className="h-4 w-4 flex-shrink-0 text-neutral-100 sm:h-5 sm:w-5" />
                         <span className="ml-3 text-sm sm:text-base">{text}</span>
                       </a>
@@ -65,7 +66,6 @@ const Contact: FC = memo(() => {
       </div>
     </Section>
   );
-});
+};
 
-Contact.displayName = 'About';
 export default Contact;

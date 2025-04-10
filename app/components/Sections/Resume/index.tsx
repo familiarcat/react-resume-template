@@ -5,8 +5,8 @@ import Section from '../../Layout/Section';
 import ResumeSection from './ResumeSection';
 import { SkillGroup } from './Skills';
 import TimelineItem from './TimelineItem';
-import { BentoMotion } from '@/components/bento/BentoMotion';
-import { BentoGrid } from '@/components/bento/BentoGrid';
+import BentoGrid from '../../bento/BentoGrid';
+import BentoMotion from '../../bento/BentoMotion';
 
 const Resume: FC = memo(() => {
   return (

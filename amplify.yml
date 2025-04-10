@@ -19,13 +19,17 @@ frontend:
         - export NODE_ENV=production
         - export NEXT_TELEMETRY_DISABLED=1
         - cp next.config.amplify.js next.config.js
-        - npm run build
+        - npm run amplify:build
         - echo "=== BUILD COMPLETED ==="
+        - echo "Contents of .next directory:"
+        - ls -la .next
   artifacts:
     baseDirectory: .
     files:
-      - '**/*'
-    discard-paths: false
+      - .next/**/*
+      - public/**/*
+      - next.config.js
+      - package.json
   cache:
     paths:
       - node_modules/**/*
