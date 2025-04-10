@@ -5,7 +5,6 @@ applications:
         preBuild:
           commands:
             - echo "=== PRE-BUILD STARTED ==="
-            - bash ./scripts/amplify-node-setup.sh || (echo "Failed to set up Node.js" && exit 1)
             - npm install -g npm@9.8.1
             - node --version
             - npm --version
@@ -16,14 +15,16 @@ applications:
             - export NODE_OPTIONS="--max-old-space-size=4096"
             - export NODE_ENV=production
             - export NEXT_TELEMETRY_DISABLED=1
-            - cp next.config.amplify.js next.config.js
             - next build
             - echo "=== BUILD COMPLETED ==="
+      buildPath: /
       artifacts:
-        baseDirectory: out  # Changed from .next/standalone to out
+        baseDirectory: .next
         files:
           - '**/*'
+        discard-paths: false
       cache:
         paths:
           - node_modules/**/*
+          - .next/cache/**/*
     appRoot: .

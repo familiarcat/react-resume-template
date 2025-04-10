@@ -1,15 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  output: 'export',
+  distDir: '.next',
   experimental: {
     optimizePackageImports: ['react', 'react-dom'],
-    serverComponentsExternalPackages: ['sharp'],
   },
-  // Add this to ensure proper standalone build
   generateBuildId: async () => {
     return `build-${Date.now()}`;
   },
-  // Ensure proper file generation
   typescript: {
     ignoreBuildErrors: true
   },
