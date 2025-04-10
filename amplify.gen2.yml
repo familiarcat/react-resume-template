@@ -15,11 +15,12 @@ applications:
             - export NODE_OPTIONS="--max-old-space-size=4096"
             - export NODE_ENV=production
             - export NEXT_TELEMETRY_DISABLED=1
+            - cp next.config.amplify.js next.config.js
             - next build
             - echo "=== BUILD COMPLETED ==="
       buildPath: /
       artifacts:
-        baseDirectory: .next
+        baseDirectory: out    # Changed to 'out' directory for static export
         files:
           - '**/*'
         discard-paths: false

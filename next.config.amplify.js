@@ -1,24 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',  // Changed from 'standalone' to 'export'
-  experimental: {
-    optimizePackageImports: ['react', 'react-dom'],
-  },
-  // Remove serverComponentsExternalPackages as it's not needed for static export
-  generateBuildId: async () => {
-    return `build-${Date.now()}`;
-  },
-  typescript: {
-    ignoreBuildErrors: true
-  },
-  eslint: {
-    ignoreDuringBuilds: true
-  },
-  optimizeFonts: true,
-  swcMinify: true,
-  compress: true,
-  poweredByHeader: false,
-  generateEtags: true,
+  output: 'export',
+  distDir: '.next',
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -28,6 +11,13 @@ const nextConfig = {
       },
     ],
   },
+  // Simplified config for better compatibility
+  typescript: {
+    ignoreBuildErrors: true
+  },
+  eslint: {
+    ignoreDuringBuilds: true
+  }
 };
 
 module.exports = nextConfig;

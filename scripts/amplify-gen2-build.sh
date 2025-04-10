@@ -8,6 +8,7 @@ log() {
 cleanup() {
   log "Cleaning up previous build artifacts..."
   rm -rf .next
+  rm -rf out
   rm -rf node_modules/.cache
 }
 
@@ -18,34 +19,10 @@ setup_env() {
   export NEXT_TELEMETRY_DISABLED=1
 }
 
-prepare_build() {
-  log "Preparing build environment..."
-  cp next.config.amplify.js next.config.js
-}
-
 build() {
   log "Starting build process..."
-  next build --no-lint
-  
-  # Immediate verification after build
-  log "Verifying build output..."
-  node scripts/verify-next-output.js
-}
-
-prepare_standalone() {
-  log "Preparing standalone build..."
-  mkdir -p .next/standalone/.next/static
-  cp -r .next/static/* .next/standalone/.next/static/
-  cp -r .next/required-server-files.json .next/standalone/.next/
-  cp -r .next/build-manifest.json .next/standalone/.next/
-  cp -r .next/server .next/standalone/.next/
-  cp -r public .next/standalone/ || true
-  cp package.json .next/standalone/
-}
-
-verify_final() {
-  log "Performing final verification..."
-  node scripts/verify-amplify-build.js
+  cp next.config.amplify.js next.config.js
+  next build
 }
 
 main() {
@@ -53,12 +30,15 @@ main() {
   
   cleanup
   setup_env
-  prepare_build
   build
-  prepare_standalone
-  verify_final
   
-  log "=== Build completed successfully ==="
+  if [ -d "out" ]; then
+    log "=== Build completed successfully ==="
+    exit 0
+  else
+    log "=== Build failed: 'out' directory not found ==="
+    exit 1
+  fi
 }
 
 main
