@@ -8,13 +8,9 @@ frontend:
       commands:
         - npm run amplify:build:dummy
   artifacts:
-    baseDirectory: .
+    baseDirectory: .next
     files:
-      - .next/**/*
-      - out/**/*
-      - public/**/*
-      - next.config.js
-      - package.json
+      - '**/*'
   cache:
     paths:
       - node_modules/**/*
