@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Amplify Gen 2 Deployment Script
+ * Amplify Gen 2 Pipeline Deployment Script
  *
- * This script deploys the Amplify Gen 2 backend and generates the client.
+ * This script deploys the Amplify Gen 2 backend using the pipeline-deploy command.
+ * It is intended for use in CI/CD pipelines.
  */
 
 const { execSync } = require('child_process');
@@ -54,21 +55,58 @@ function runCommand(command, options = {}) {
   }
 }
 
-// Function to check if the backend is initialized
-function isBackendInitialized() {
-  const resourcePath = path.join(process.cwd(), 'amplify', 'data', 'resource.ts');
-  return fs.existsSync(resourcePath);
+// Function to get the current git branch
+function getCurrentBranch() {
+  try {
+    return execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim();
+  } catch (err) {
+    warning('Failed to get current git branch. Using "main" as default.');
+    return 'main';
+  }
 }
 
-// Function to deploy the backend
-async function deployBackend() {
-  log('\n=== Deploying Amplify Gen 2 Backend ===');
+// Function to get the Amplify app ID
+function getAmplifyAppId() {
+  // Try to get the app ID from environment variables
+  if (process.env.AMPLIFY_APP_ID) {
+    return process.env.AMPLIFY_APP_ID;
+  }
 
-  // Check if the backend is initialized
-  if (!isBackendInitialized()) {
-    error('Backend is not initialized. Make sure you have an amplify/data/resource.ts file.');
+  // Try to get the app ID from amplify_outputs.json
+  const amplifyOutputsPath = path.join(process.cwd(), 'amplify_outputs.json');
+  if (fs.existsSync(amplifyOutputsPath)) {
+    try {
+      const amplifyOutputs = JSON.parse(fs.readFileSync(amplifyOutputsPath, 'utf8'));
+      if (amplifyOutputs.appId) {
+        return amplifyOutputs.appId;
+      }
+    } catch (err) {
+      warning(`Failed to parse amplify_outputs.json: ${err.message}`);
+    }
+  }
+
+  // Prompt the user for the app ID
+  warning('Could not determine Amplify app ID automatically.');
+  warning('Please provide the app ID using the --app-id flag or set the AMPLIFY_APP_ID environment variable.');
+
+  return null;
+}
+
+// Function to deploy using pipeline-deploy
+async function pipelineDeploy(appId, branch) {
+  log('\n=== Deploying Amplify Gen 2 Backend using pipeline-deploy ===');
+
+  if (!appId) {
+    error('Amplify app ID is required for pipeline deployment');
     return false;
   }
+
+  if (!branch) {
+    branch = getCurrentBranch();
+  }
+
+  info(`Deploying to app ID: ${appId}`);
+  info(`Branch: ${branch}`);
 
   // Set AWS profile
   process.env.AWS_PROFILE = 'AmplifyUser';
@@ -79,8 +117,8 @@ async function deployBackend() {
   delete process.env.AWS_SESSION_TOKEN;
 
   // Deploy the backend
-  info('Deploying backend with ampx sandbox --once...');
-  const result = runCommand('bash scripts/aws-wrapper.sh npx ampx sandbox --once');
+  info('Deploying backend with pipeline-deploy...');
+  const result = runCommand(`bash scripts/aws-wrapper.sh npx ampx pipeline-deploy --app-id ${appId} --branch ${branch}`);
 
   if (result.success) {
     success('Backend deployed successfully');
@@ -118,51 +156,33 @@ async function generateClient() {
   return true;
 }
 
-// Function to check the deployment
-async function checkDeployment() {
-  log('\n=== Checking Deployment ===');
-
-  // Check if amplify_outputs.json exists
-  const amplifyOutputsPath = path.join(process.cwd(), 'amplify_outputs.json');
-
-  if (!fs.existsSync(amplifyOutputsPath)) {
-    error('amplify_outputs.json file not found. Deployment may have failed.');
-    return false;
-  }
-
-  try {
-    const amplifyOutputs = JSON.parse(fs.readFileSync(amplifyOutputsPath, 'utf8'));
-
-    if (!amplifyOutputs.data?.url || !amplifyOutputs.data?.api_key) {
-      error('API URL or API key not found in amplify_outputs.json');
-      return false;
-    }
-
-    success('Deployment verified successfully');
-    info(`API URL: ${amplifyOutputs.data.url}`);
-    info(`API Key: ${amplifyOutputs.data.api_key.substring(0, 5)}...${amplifyOutputs.data.api_key.substring(amplifyOutputs.data.api_key.length - 5)}`);
-
-    return true;
-  } catch (err) {
-    error(`Failed to verify deployment: ${err.message}`);
-    return false;
-  }
-}
-
 // Main function
 async function main() {
-  log('\n=== Amplify Gen 2 Deployment ===');
+  const args = process.argv.slice(2);
+  const appIdFlag = args.find(arg => arg.startsWith('--app-id='));
+  const branchFlag = args.find(arg => arg.startsWith('--branch='));
+
+  let appId = appIdFlag ? appIdFlag.split('=')[1] : null;
+  let branch = branchFlag ? branchFlag.split('=')[1] : null;
+
+  if (!appId) {
+    appId = getAmplifyAppId();
+  }
+
+  if (!appId) {
+    error('Amplify app ID is required for pipeline deployment');
+    log('Usage: npm run amplify:pipeline-deploy -- --app-id=<app-id> [--branch=<branch>]');
+    return false;
+  }
+
+  log(`\n=== Amplify Gen 2 Pipeline Deployment ===`);
 
   // Deploy the backend
-  const deploySuccess = await deployBackend();
+  const deploySuccess = await pipelineDeploy(appId, branch);
   if (!deploySuccess) {
     error('Failed to deploy backend. Cannot proceed.');
     return false;
   }
-
-  // Wait a moment for the deployment to complete
-  info('Waiting for deployment to complete...');
-  await new Promise(resolve => setTimeout(resolve, 5000));
 
   // Generate the client
   const generateSuccess = await generateClient();
@@ -170,13 +190,7 @@ async function main() {
     warning('Failed to generate client. Continuing anyway...');
   }
 
-  // Check the deployment
-  const checkSuccess = await checkDeployment();
-  if (!checkSuccess) {
-    warning('Failed to verify deployment. The deployment may still be in progress.');
-  }
-
-  success('Deployment process completed');
+  success('Pipeline deployment completed successfully');
   return true;
 }
 
@@ -196,7 +210,6 @@ if (require.main === module) {
 
 // Export functions for use in other scripts
 module.exports = {
-  deployBackend,
-  generateClient,
-  checkDeployment
+  pipelineDeploy,
+  generateClient
 };

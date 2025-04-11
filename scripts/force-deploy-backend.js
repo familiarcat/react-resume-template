@@ -2,7 +2,7 @@
 
 /**
  * Force Deploy Amplify Gen 2 Backend
- * 
+ *
  * This script forces a deployment of the Amplify Gen 2 backend and verifies table creation.
  */
 
@@ -33,24 +33,24 @@ const info = (message) => console.log(`${colors.blue}ℹ ${message}${colors.rese
 // Function to execute shell commands
 function runCommand(command, options = {}) {
   const { silent = false, ignoreError = false } = options;
-  
+
   try {
     if (!silent) {
       info(`Executing: ${command}`);
     }
-    
-    const output = execSync(command, { 
+
+    const output = execSync(command, {
       encoding: 'utf8',
       stdio: silent ? 'pipe' : 'inherit'
     });
-    
+
     return { success: true, output };
   } catch (err) {
     if (!ignoreError) {
       error(`Command failed: ${command}`);
       error(err.message);
     }
-    
+
     return { success: false, error: err, output: err.stdout };
   }
 }
@@ -58,30 +58,30 @@ function runCommand(command, options = {}) {
 // Function to force deploy the backend
 async function forceDeployBackend() {
   log('\n=== Force Deploying Amplify Gen 2 Backend ===');
-  
+
   // Set AWS profile
   process.env.AWS_PROFILE = 'AmplifyUser';
-  
+
   // Unset AWS credentials if they exist
   delete process.env.AWS_ACCESS_KEY_ID;
   delete process.env.AWS_SECRET_ACCESS_KEY;
   delete process.env.AWS_SESSION_TOKEN;
-  
+
   // Clean up any existing deployment
   info('Cleaning up any existing deployment...');
   runCommand('rm -f amplify_outputs.json', { silent: true, ignoreError: true });
-  
+
   // Deploy the backend with force flag
   info('Deploying backend with force flag...');
-  const result = runCommand('npx ampx deploy --force --profile AmplifyUser');
-  
+  const result = runCommand('bash scripts/aws-wrapper.sh npx ampx sandbox --once');
+
   if (result.success) {
     success('Backend deployed successfully');
-    
+
     // Wait for deployment to complete
     info('Waiting for deployment to complete...');
     await new Promise(resolve => setTimeout(resolve, 10000));
-    
+
     return true;
   } else {
     error('Failed to deploy backend');
@@ -92,43 +92,43 @@ async function forceDeployBackend() {
 // Function to verify table creation
 async function verifyTableCreation() {
   log('\n=== Verifying DynamoDB Table Creation ===');
-  
+
   // Check if amplify_outputs.json exists
   const amplifyOutputsPath = path.join(process.cwd(), 'amplify_outputs.json');
-  
+
   if (!fs.existsSync(amplifyOutputsPath)) {
     error('amplify_outputs.json file not found. Deployment may have failed.');
     return false;
   }
-  
+
   try {
     const amplifyOutputs = JSON.parse(fs.readFileSync(amplifyOutputsPath, 'utf8'));
-    
+
     if (!amplifyOutputs.data?.aws_region) {
       error('AWS region not found in amplify_outputs.json');
       return false;
     }
-    
+
     // Configure AWS SDK
     const region = amplifyOutputs.data.aws_region;
     AWS.config.update({ region });
-    
+
     // Create DynamoDB client
     const dynamoDB = new AWS.DynamoDB();
-    
+
     // List tables
     info('Listing DynamoDB tables...');
     const { TableNames } = await dynamoDB.listTables().promise();
-    
+
     if (!TableNames || TableNames.length === 0) {
       error('No DynamoDB tables found');
       return false;
     }
-    
+
     // Filter tables for this project
-    const projectTables = TableNames.filter(tableName => 
-      tableName.includes('Todo') || 
-      tableName.includes('Resume') || 
+    const projectTables = TableNames.filter(tableName =>
+      tableName.includes('Todo') ||
+      tableName.includes('Resume') ||
       tableName.includes('Summary') ||
       tableName.includes('ContactInformation') ||
       tableName.includes('Reference') ||
@@ -139,17 +139,17 @@ async function verifyTableCreation() {
       tableName.includes('Position') ||
       tableName.includes('Skill')
     );
-    
+
     if (projectTables.length === 0) {
       error('No project-related DynamoDB tables found');
       return false;
     }
-    
+
     success(`Found ${projectTables.length} project-related DynamoDB tables:`);
     projectTables.forEach(tableName => {
       info(`- ${tableName}`);
     });
-    
+
     return true;
   } catch (err) {
     error(`Failed to verify table creation: ${err.message}`);
@@ -160,50 +160,60 @@ async function verifyTableCreation() {
 // Function to generate the client
 async function generateClient() {
   log('\n=== Generating Amplify Client ===');
-  
-  // Generate the client
-  info('Generating client with ampx generate...');
-  const result = runCommand('npx ampx generate');
-  
-  if (result.success) {
-    success('Client generated successfully');
-    return true;
+
+  // Generate the client outputs
+  info('Generating client outputs...');
+  let result = runCommand('bash scripts/aws-wrapper.sh npx ampx generate outputs');
+
+  if (!result.success) {
+    warning('Failed to generate client outputs');
   } else {
-    error('Failed to generate client');
+    success('Client outputs generated successfully');
+  }
+
+  // Generate GraphQL client code
+  info('Generating GraphQL client code...');
+  result = runCommand('bash scripts/aws-wrapper.sh npx ampx generate graphql-client-code');
+
+  if (!result.success) {
+    warning('Failed to generate GraphQL client code');
     return false;
   }
+
+  success('GraphQL client code generated successfully');
+  return true;
 }
 
 // Main function
 async function main() {
   log('\n=== Amplify Gen 2 Force Deployment ===');
-  
+
   // Force deploy the backend
   const deploySuccess = await forceDeployBackend();
   if (!deploySuccess) {
     error('Failed to deploy backend. Cannot proceed.');
     return false;
   }
-  
+
   // Verify table creation
   const verifySuccess = await verifyTableCreation();
   if (!verifySuccess) {
     warning('Failed to verify table creation. The deployment may still be in progress.');
     warning('Wait a few minutes and try running the verification again.');
   }
-  
+
   // Generate the client
   const generateSuccess = await generateClient();
   if (!generateSuccess) {
     warning('Failed to generate client. Continuing anyway...');
   }
-  
+
   success('Force deployment process completed');
   info('If tables were not created, try the following:');
   info('1. Check your AWS credentials and permissions');
   info('2. Make sure your data model is correctly defined');
   info('3. Try running the verification again after a few minutes');
-  
+
   return true;
 }
 
