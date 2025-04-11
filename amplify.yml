@@ -1,4 +1,12 @@
 version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - npm run amplify:gen2:install-deps
+        - npm run amplify:gen2:fast
+        - npm run amplify:gen2:create-tables
+        - npm run amplify:gen2:seed-direct
 frontend:
   phases:
     preBuild:
@@ -6,11 +14,13 @@ frontend:
         - npm ci
     build:
       commands:
-        - npm run amplify:build:dummy
+        - npm run amplify:gen2:build
   artifacts:
-    baseDirectory: .next
+    baseDirectory: out
     files:
       - '**/*'
   cache:
     paths:
       - node_modules/**/*
+      - .next/cache/**/*
+      - .amplify-cache/**/*

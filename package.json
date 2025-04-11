@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=18.19.0",
-    "npm": ">=9.8.1"
+    "node": "18.x",
+    "npm": "9.x"
   },
   "resolutions": {
     "execa": "8.0.1"
@@ -13,11 +13,13 @@
     "dev": "next dev",
     "dev:static": "node scripts/static-dev.js",
     "next:static-config": "node scripts/update-nextjs-config.js",
-    "build": "next build",
+    "build": "node scripts/amplify-static-build.js",
     "fix-dependencies": "node scripts/fix-dependencies.js",
     "postinstall": "npm run fix-dependencies",
     "amplify-build": "npm run fix-dependencies && ./scripts/amplify-build.sh",
     "amplify:build": "node scripts/amplify-build-v2.js",
+    "amplify:gen2:build": "node scripts/amplify-gen2-build.js",
+    "amplify:gen2:test": "node scripts/test-amplify-build.js",
     "amplify:build:minimal": "node scripts/amplify-build-minimal.js",
     "amplify:build:static": "node scripts/amplify-static-build.js",
     "amplify:build:dummy": "node scripts/amplify-build-with-dummy.js",
@@ -142,5 +144,5 @@
     "tailwindcss": "^3.3.0",
     "typescript": "^5.0.0"
   },
-  "packageManager": "yarn@4.7.0+sha512.5a0afa1d4c1d844b3447ee3319633797bcd6385d9a44be07993ae52ff4facabccafb4af5dcd1c2f9a94ac113e5e9ff56f6130431905884414229e284e37bb7c9"
+  "packageManager": "npm@9.8.1"
 }

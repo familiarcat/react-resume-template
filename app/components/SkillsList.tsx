@@ -19,7 +19,7 @@ export default function SkillsList({ resumeId }: { resumeId: string }) {
       try {
         setLoading(true);
         const skillsData = await getSkills(resumeId);
-        setSkills(skillsData);
+        setSkills(skillsData || []);
         setError(null);
       } catch (err) {
         setError('Failed to load skills');
@@ -32,9 +32,39 @@ export default function SkillsList({ resumeId }: { resumeId: string }) {
     loadSkills();
   }, [resumeId]);
 
-  if (loading) return <div>Loading skills...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
-  if (skills.length === 0) return <div>No skills found</div>;
+  if (loading) {
+    return (
+      <div className="mt-4">
+        <h3 className="text-lg font-medium mb-2">Skills</h3>
+        <div className="flex flex-wrap gap-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className="px-3 py-1 bg-gray-100 rounded-full animate-pulse w-16 h-8"
+            ></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mt-4">
+        <h3 className="text-lg font-medium mb-2">Skills</h3>
+        <div className="text-red-500 text-sm">{error}</div>
+      </div>
+    );
+  }
+
+  if (skills.length === 0) {
+    return (
+      <div className="mt-4">
+        <h3 className="text-lg font-medium mb-2">Skills</h3>
+        <div className="text-gray-500 text-sm">No skills found</div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4">

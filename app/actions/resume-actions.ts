@@ -5,12 +5,29 @@
  * These functions can be called directly from client components.
  */
 
-'use server';
+// This file contains actions that can be called from client components
+// We're not using 'use server' directive to ensure compatibility with static exports
 
 import { revalidatePath } from 'next/cache';
-// Import the mock data service for static export
-import * as DataService from '../lib/mock-data-service';
-console.log('Using mock data service for static export');
+
+// Import the appropriate data service based on the environment
+let DataService: any;
+
+// In a static export environment, we'll use the mock data service
+// In a server environment, we'd use the Amplify data service
+try {
+  DataService = require('../lib/mock-data-service');
+  console.log('Using mock data service');
+} catch (error) {
+  console.error('Error loading mock data service:', error);
+  // Fallback to empty implementation
+  DataService = {
+    getCompleteResume: async () => null,
+    getSkills: async () => [],
+    getPositions: async () => [],
+    createTodo: async () => null
+  };
+}
 
 /**
  * Get the complete resume with all related data
