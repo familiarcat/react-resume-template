@@ -80,9 +80,30 @@ async function main() {
 
   // Seed data
   info('Step 6: Seeding data...');
-  const seedingCompleted = await seedData(client);
-  if (!seedingCompleted) {
-    error('Data seeding failed.');
+
+  try {
+    // First try to seed data using the Amplify client
+    info('Attempting to seed data using Amplify client...');
+    const seedingCompleted = await seedData(client);
+
+    if (!seedingCompleted) {
+      warning('Seeding with Amplify client failed. Trying direct DynamoDB seeding...');
+
+      // If that fails, try direct DynamoDB seeding
+      const { seedData: seedDirectly } = require('./seed-dynamodb-directly');
+      const directSeedingCompleted = await seedDirectly();
+
+      if (!directSeedingCompleted) {
+        error('Direct DynamoDB seeding failed.');
+        return false;
+      }
+
+      success('Direct DynamoDB seeding completed successfully');
+    } else {
+      success('Amplify client seeding completed successfully');
+    }
+  } catch (err) {
+    error(`Seeding failed: ${err.message}`);
     return false;
   }
 

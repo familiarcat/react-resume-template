@@ -199,8 +199,11 @@ npm run amplify:check:backend
 If your DynamoDB tables are not being created:
 
 ```bash
-# Fix DynamoDB tables
-npm run amplify:fix-tables
+# Create DynamoDB tables
+npm run amplify:gen2:create-tables
+
+# Seed DynamoDB tables directly
+npm run amplify:gen2:seed-direct
 ```
 
 ### Apply AWS Best Practices
