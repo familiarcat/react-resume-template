@@ -4,9 +4,6 @@ backend:
     build:
       commands:
         - npm run amplify:gen2:install-deps
-        - npm run amplify:gen2:fast
-        - npm run amplify:gen2:create-tables
-        - npm run amplify:gen2:seed-direct
 frontend:
   phases:
     preBuild:
@@ -15,6 +12,7 @@ frontend:
     build:
       commands:
         - npm run amplify:gen2:build
+        - node scripts/amplify-minimal-build.js
   artifacts:
     baseDirectory: out
     files:

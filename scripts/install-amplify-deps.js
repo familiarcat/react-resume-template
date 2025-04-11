@@ -71,10 +71,11 @@ async function installDependencies() {
   // List of required dependencies
   const dependencies = [
     '@aws-amplify/api',
-    '@aws-amplify/cli',
-    'aws-amplify',
-    'aws-sdk'
+    'aws-amplify'
   ];
+
+  // These dependencies are already in package.json and should be installed by npm ci
+  // We don't need to install them separately
 
   // Check which dependencies are missing
   const missingDependencies = dependencies.filter(dep => !isPackageInstalled(dep));
