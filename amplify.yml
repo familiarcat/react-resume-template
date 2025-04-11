@@ -6,11 +6,15 @@ frontend:
         - npm ci
     build:
       commands:
-        - npm run build
+        - npm run amplify:build:dummy
   artifacts:
-    baseDirectory: out
+    baseDirectory: .
     files:
-      - '**/*'
+      - .next/**/*
+      - out/**/*
+      - public/**/*
+      - next.config.js
+      - package.json
   cache:
     paths:
       - node_modules/**/*

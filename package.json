@@ -18,6 +18,7 @@
     "amplify:build": "node scripts/amplify-build-v2.js",
     "amplify:build:minimal": "node scripts/amplify-build-minimal.js",
     "amplify:build:static": "node scripts/amplify-static-build.js",
+    "amplify:build:dummy": "node scripts/amplify-build-with-dummy.js",
     "amplify:gen2": "./scripts/amplify-gen2-build.sh",
     "test:amplify": "./scripts/test-amplify-build.sh",
     "start": "next start",
