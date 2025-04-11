@@ -2,7 +2,7 @@
 
 /**
  * Static Development Server
- * 
+ *
  * This script builds the Next.js app as a static export and serves it,
  * avoiding middleware issues with static exports.
  */
@@ -35,24 +35,24 @@ const info = (message) => console.log(`${colors.blue}ℹ ${message}${colors.rese
 // Function to execute shell commands
 function runCommand(command, options = {}) {
   const { silent = false, ignoreError = false } = options;
-  
+
   try {
     if (!silent) {
       info(`Executing: ${command}`);
     }
-    
-    const output = execSync(command, { 
+
+    const output = execSync(command, {
       encoding: 'utf8',
       stdio: silent ? 'pipe' : 'inherit'
     });
-    
+
     return { success: true, output };
   } catch (err) {
     if (!ignoreError) {
       error(`Command failed: ${command}`);
       error(err.message);
     }
-    
+
     return { success: false, error: err, output: err.stdout };
   }
 }
@@ -72,49 +72,49 @@ async function installServe() {
   if (!isPackageInstalled('serve')) {
     info('Installing serve package...');
     const result = runCommand('npm install --save-dev serve');
-    
+
     if (!result.success) {
       error('Failed to install serve package');
       return false;
     }
-    
+
     success('Serve package installed');
   }
-  
+
   return true;
 }
 
 // Function to build the static site
 async function buildStaticSite() {
   log('\n=== Building Static Site ===');
-  
+
   // Build the Next.js app
   info('Building Next.js app...');
-  const buildResult = runCommand('next build');
-  
+  const buildResult = runCommand('next build --no-lint');
+
   if (!buildResult.success) {
     error('Failed to build Next.js app');
     return false;
   }
-  
+
   success('Next.js app built successfully');
-  
+
   return true;
 }
 
 // Function to serve the static site
 async function serveStaticSite() {
   log('\n=== Serving Static Site ===');
-  
+
   const port = process.env.PORT || 3000;
   const outDir = path.join(process.cwd(), 'out');
-  
+
   // Check if out directory exists
   if (!fs.existsSync(outDir)) {
     error('Output directory not found. Build failed or not run.');
     return false;
   }
-  
+
   // Create server
   const server = http.createServer((request, response) => {
     return handler(request, response, {
@@ -124,47 +124,47 @@ async function serveStaticSite() {
       ]
     });
   });
-  
+
   // Start server
   server.listen(port, () => {
     success(`Static site server running at http://localhost:${port}`);
     info('Press Ctrl+C to stop');
   });
-  
+
   // Handle server errors
   server.on('error', (err) => {
     error(`Server error: ${err.message}`);
     process.exit(1);
   });
-  
+
   return true;
 }
 
 // Main function
 async function main() {
   log('\n=== Static Development Server ===');
-  
+
   // Install serve if needed
   const serveInstalled = await installServe();
   if (!serveInstalled) {
     error('Failed to install required packages');
     return false;
   }
-  
+
   // Build static site
   const buildSuccess = await buildStaticSite();
   if (!buildSuccess) {
     error('Failed to build static site');
     return false;
   }
-  
+
   // Serve static site
   const serveSuccess = await serveStaticSite();
   if (!serveSuccess) {
     error('Failed to serve static site');
     return false;
   }
-  
+
   return true;
 }
 

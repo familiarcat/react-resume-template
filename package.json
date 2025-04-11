@@ -55,6 +55,8 @@
     "amplify:gen2:seed-direct": "node scripts/seed-dynamodb-directly.js",
     "amplify:gen2:seed": "node scripts/seed-amplify-gen2.js",
     "amplify:gen2:full": "node scripts/deploy-and-seed-gen2.js",
+    "amplify:gen2:fast": "node scripts/fast-amplify-deploy.js",
+    "amplify:gen2:cicd": "node scripts/amplify-cicd-optimize.js",
     "amplify:gen2:force": "node scripts/force-deploy-backend.js",
     "amplify:dev": "node scripts/amplify-workflow.js development",
     "amplify:prod": "node scripts/amplify-workflow.js production",
