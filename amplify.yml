@@ -13,10 +13,13 @@ frontend:
       commands:
         - npm run amplify:gen2:build
         - node scripts/amplify-minimal-build.js
+        - node scripts/amplify-fix-required-files.js
   artifacts:
-    baseDirectory: out
+    baseDirectory: .
     files:
-      - '**/*'
+      - 'out/**/*'
+      - '.next/**/*'
+      - 'required-server-files.json'
   cache:
     paths:
       - node_modules/**/*

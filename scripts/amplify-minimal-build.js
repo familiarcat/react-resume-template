@@ -284,7 +284,25 @@ function createRequiredFiles() {
     fs.copyFileSync(buildManifestPath, path.join(outNextDir, 'build-manifest.json'));
   }
 
-  success('Copied required files to out/.next directory');
+  // Also copy required-server-files.json to the root of the out directory
+  // This is where Amplify Gen 2 might be looking for it
+  fs.copyFileSync(requiredServerFilesPath, path.join(outDir, 'required-server-files.json'));
+
+  // Also copy to .next/server directory
+  const serverDir = path.join(process.cwd(), '.next', 'server');
+  if (!fs.existsSync(serverDir)) {
+    fs.mkdirSync(serverDir, { recursive: true });
+  }
+  fs.copyFileSync(requiredServerFilesPath, path.join(serverDir, 'required-server-files.json'));
+
+  // Also copy to out/.next/server directory
+  const outServerDir = path.join(outDir, '.next', 'server');
+  if (!fs.existsSync(outServerDir)) {
+    fs.mkdirSync(outServerDir, { recursive: true });
+  }
+  fs.copyFileSync(requiredServerFilesPath, path.join(outServerDir, 'required-server-files.json'));
+
+  success('Copied required files to all possible locations');
 }
 
 // Function to build the Next.js app
