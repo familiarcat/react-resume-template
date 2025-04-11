@@ -4,23 +4,10 @@ applications:
       phases:
         preBuild:
           commands:
-            - echo "=== PRE-BUILD STARTED ==="
-            - bash ./scripts/amplify-node-setup-simple.sh
-            - npm ci --legacy-peer-deps
-            - npm install sharp --no-save
-            - echo "=== PRE-BUILD COMPLETED ==="
+            - npm ci
         build:
           commands:
-            - echo "=== BUILD STARTED ==="
-            - export NODE_OPTIONS="--max-old-space-size=4096"
-            - export NODE_ENV=production
-            - export NEXT_TELEMETRY_DISABLED=1
-            - npm run amplify:build:static
-            - echo "=== BUILD COMPLETED ==="
-            - echo "Contents of .next directory:"
-            - ls -la .next
-            - echo "Contents of out directory:"
-            - ls -la out
+            - npm run build
       artifacts:
         baseDirectory: out
         files:
@@ -28,5 +15,4 @@ applications:
       cache:
         paths:
           - node_modules/**/*
-          - .next/cache/**/*
     appRoot: .
