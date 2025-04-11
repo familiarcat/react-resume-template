@@ -43,6 +43,9 @@
     "amplify:cli": "node scripts/amplify-deploy.js cli",
     "amplify:deploy:backend": "node scripts/deploy-and-seed-backend.js",
     "amplify:check:backend": "node scripts/check-backend-status.js",
+    "amplify:gen2:deploy": "node scripts/deploy-amplify-gen2.js",
+    "amplify:gen2:seed": "node scripts/seed-amplify-gen2.js",
+    "amplify:gen2:full": "node scripts/deploy-and-seed-gen2.js",
     "ci-deploy": "CI=true node scripts/deploy-pipeline.js",
     "check-amplify": "node scripts/check-amplify-deployment.js"
   },
