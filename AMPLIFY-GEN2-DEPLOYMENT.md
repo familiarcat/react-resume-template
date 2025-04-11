@@ -13,7 +13,20 @@ Before deploying your backend, make sure you have the following:
 
 ## Deployment Options
 
-### Option 1: Full Deployment (Deploy + Seed)
+### Option 1: Force Deployment (Recommended for First Deployment)
+
+If you're having issues with tables not being created, use the force deployment option:
+
+```bash
+npm run amplify:gen2:force
+```
+
+This script will:
+1. Force deploy your Amplify Gen 2 backend
+2. Verify that DynamoDB tables are created
+3. Generate the client
+
+### Option 2: Full Deployment (Deploy + Seed)
 
 To deploy your backend and seed it with data in one step:
 
@@ -26,7 +39,7 @@ This script will:
 2. Generate the client
 3. Seed the database with mock data
 
-### Option 2: Step-by-Step Deployment
+### Option 3: Step-by-Step Deployment
 
 If you prefer to deploy and seed separately:
 
@@ -95,25 +108,40 @@ The seeding script creates the following records:
 
 ### Common Issues
 
-#### 1. Deployment Fails
+#### 1. DynamoDB Tables Not Created
+
+If your DynamoDB tables aren't being created:
+
+- **Check your data model**: Make sure your `amplify/data/resource.ts` file has the correct syntax. Each model should be properly defined with the correct indentation and structure.
+
+- **Use force deployment**: Run `npm run amplify:gen2:force` to force a clean deployment and verify table creation.
+
+- **Check authorization modes**: Make sure your authorization mode is set to 'apiKey' instead of 'iam' in your data model.
+
+- **Wait for CloudFormation**: Sometimes it takes time for CloudFormation to create all resources. Wait 5-10 minutes and check again.
+
+#### 2. Deployment Fails
 
 If the deployment fails:
 - Check your AWS credentials
 - Make sure you have the correct permissions
 - Check the AWS CloudFormation console for stack creation errors
+- Try running with the `--force` flag: `npx ampx deploy --force`
 
-#### 2. Seeding Fails
+#### 3. Seeding Fails
 
 If seeding fails:
 - Check if the backend is deployed correctly
 - Make sure the API is accessible
 - Check if the data model matches the seeding script
+- Verify that the DynamoDB tables exist
 
-#### 3. amplify_outputs.json Not Found
+#### 4. amplify_outputs.json Not Found
 
 If you see an error about `amplify_outputs.json` not being found:
 - Run `npm run amplify:gen2:deploy` to deploy the backend
 - Check if the file exists in your project root
+- If it still doesn't exist, try running `npx ampx sandbox` to generate it
 
 ## Cleaning Up
 

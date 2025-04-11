@@ -46,6 +46,7 @@
     "amplify:gen2:deploy": "node scripts/deploy-amplify-gen2.js",
     "amplify:gen2:seed": "node scripts/seed-amplify-gen2.js",
     "amplify:gen2:full": "node scripts/deploy-and-seed-gen2.js",
+    "amplify:gen2:force": "node scripts/force-deploy-backend.js",
     "ci-deploy": "CI=true node scripts/deploy-pipeline.js",
     "check-amplify": "node scripts/check-amplify-deployment.js"
   },
@@ -57,6 +58,7 @@
     "@reactflow/core": "^11.11.4",
     "aws-amplify": "^6.13.5",
     "aws-cdk-lib": "^2.188.0",
+    "aws-sdk": "2.1692.0",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "constructs": "^10.4.2",

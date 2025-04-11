@@ -12,7 +12,8 @@ const schema = a.schema({
       content: a.string(),
     })
     .authorization((allow) => [allow.guest()]),
-    Summary: a.model({
+  Summary: a
+    .model({
       id: a.id(),
       goals: a.string(),
       persona: a.string(),
@@ -21,8 +22,10 @@ const schema = a.schema({
       gptResponse: a.string(),
       resume: a.string(),
       resumes: a.hasMany('Resume', 'summaryId')
-    }).authorization((allow) => [allow.guest()]),
-    ContactInformation: a.model({
+    })
+    .authorization((allow) => [allow.guest()]),
+  ContactInformation: a
+    .model({
       id: a.id(),
       name: a.string(),
       email: a.string(),
@@ -30,43 +33,55 @@ const schema = a.schema({
       resume: a.string(),
       references: a.hasMany('Reference', 'contactInformationId'),
       resumes: a.hasMany('Resume', 'contactInformationId')
-    }).authorization((allow) => [allow.guest()]),
-    Reference: a.model({
+    })
+    .authorization((allow) => [allow.guest()]),
+  Reference: a
+    .model({
       id: a.id(),
       name: a.string(),
       phone: a.string(),
       email: a.string(),
       contactInformationId: a.string(),
       contactInformation: a.belongsTo('ContactInformation', 'contactInformationId')
-    }).authorization((allow) => [allow.guest()]),
-    Education: a.model({
+    })
+    .authorization((allow) => [allow.guest()]),
+  Education: a
+    .model({
       id: a.id(),
       summary: a.string(),
       resume: a.string(),
       schools: a.hasMany('School', 'educationId'),
       resumes: a.hasMany('Resume', 'educationId')
-    }).authorization((allow) => [allow.guest()]),
-    School: a.model({
+    })
+    .authorization((allow) => [allow.guest()]),
+  School: a
+    .model({
       id: a.id(),
       name: a.string(),
       educationId: a.string(),
       education: a.belongsTo('Education', 'educationId'),
       degrees: a.hasMany('Degree', 'schoolId')
-    }).authorization((allow) => [allow.guest()]),
-    Degree: a.model({
+    })
+    .authorization((allow) => [allow.guest()]),
+  Degree: a
+    .model({
       id: a.id(),
       major: a.string(),
       startYear: a.string(),
       endYear: a.string(),
       schoolId: a.string(),
       school: a.belongsTo('School', 'schoolId')
-    }).authorization((allow) => [allow.guest()]),
-    Experience: a.model({
+    })
+    .authorization((allow) => [allow.guest()]),
+  Experience: a
+    .model({
       id: a.id(),
       positions: a.hasMany('Position', 'experienceId'),
       resumes: a.hasMany('Resume', 'experienceId')
-    }).authorization((allow) => [allow.guest()]),
-    Position: a.model({
+    })
+    .authorization((allow) => [allow.guest()]),
+  Position: a
+    .model({
       id: a.id(),
       title: a.string(),
       company: a.string(),
@@ -74,15 +89,19 @@ const schema = a.schema({
       endDate: a.string(),
       experienceId: a.string(),
       experience: a.belongsTo('Experience', 'experienceId')
-    }).authorization((allow) => [allow.guest()]),
-    Skill: a.model({
+    })
+    .authorization((allow) => [allow.guest()]),
+  Skill: a
+    .model({
       id: a.id(),
       title: a.string(),
       link: a.string(),
       resumeId: a.string(),
       resume: a.belongsTo('Resume', 'resumeId')
-    }).authorization((allow) => [allow.guest()]),
-    Resume: a.model({
+    })
+    .authorization((allow) => [allow.guest()]),
+  Resume: a
+    .model({
       id: a.id(),
       title: a.string(),
       summaryId: a.string(),
@@ -94,7 +113,8 @@ const schema = a.schema({
       experienceId: a.string(),
       experience: a.belongsTo('Experience', 'experienceId'),
       skills: a.hasMany('Skill', 'resumeId')
-    }).authorization((allow) => [allow.guest()]),
+    })
+    .authorization((allow) => [allow.guest()]),
 });
 
 export type Schema = {
@@ -202,7 +222,10 @@ export type ModelTypes = {
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'iam',
+    defaultAuthorizationMode: 'apiKey',
+    apiKeyAuthorizationMode: {
+      expiresInDays: 30,
+    },
   },
 });
 
