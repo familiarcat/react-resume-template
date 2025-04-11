@@ -15,18 +15,16 @@ applications:
             - export NODE_OPTIONS="--max-old-space-size=4096"
             - export NODE_ENV=production
             - export NEXT_TELEMETRY_DISABLED=1
-            - cp next.config.amplify.js next.config.js
-            - npm run amplify:build:minimal
+            - npm run amplify:build:static
             - echo "=== BUILD COMPLETED ==="
             - echo "Contents of .next directory:"
             - ls -la .next
+            - echo "Contents of out directory:"
+            - ls -la out
       artifacts:
-        baseDirectory: .
+        baseDirectory: out
         files:
-          - .next/**/*
-          - public/**/*
-          - next.config.js
-          - package.json
+          - '**/*'
       cache:
         paths:
           - node_modules/**/*
