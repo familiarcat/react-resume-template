@@ -47,6 +47,12 @@
     "amplify:gen2:seed": "node scripts/seed-amplify-gen2.js",
     "amplify:gen2:full": "node scripts/deploy-and-seed-gen2.js",
     "amplify:gen2:force": "node scripts/force-deploy-backend.js",
+    "amplify:dev": "node scripts/amplify-workflow.js development",
+    "amplify:prod": "node scripts/amplify-workflow.js production",
+    "amplify:optimize": "node scripts/optimize-amplify-deploy.js",
+    "amplify:seed:dev": "node scripts/seed-env-data.js development",
+    "amplify:seed:prod": "node scripts/seed-env-data.js production",
+    "amplify:fix-tables": "node scripts/fix-dynamodb-tables.js",
     "ci-deploy": "CI=true node scripts/deploy-pipeline.js",
     "check-amplify": "node scripts/check-amplify-deployment.js"
   },
