@@ -89,7 +89,6 @@ export function getAmplifyConfig(): AmplifyConfigType {
     console.error('Error loading Amplify configuration:', errorMessage);
 
     // Return a minimal configuration for fallback
-    // @ts-expect-error - This is a minimal configuration for fallback
     return {
       API: {
         GraphQL: {
