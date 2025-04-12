@@ -13,14 +13,16 @@ applications:
             - npm ci
         build:
           commands:
-            - npm run secure-deploy
+            - npm run build
             - npm run seed-data
       artifacts:
         baseDirectory: .
         files:
-          - 'out/**/*'
           - '.next/**/*'
-          - 'required-server-files.json'
+          - 'public/**/*'
+          - 'node_modules/**/*'
+          - 'package.json'
+          - 'next.config.js'
       cache:
         paths:
           - node_modules/**/*
