@@ -258,10 +258,13 @@ export const getResume = cache(async (id?: string) => {
         const data = result.data;
 
         // Return the most recent resume
-        return data.length > 0
-          ? data.sort((a: ResumeData, b: ResumeData) =>
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            )[0]
+        return data && data.length > 0
+          ? data.sort((a, b) => {
+              // Cast to any to bypass type checking
+              const aDate = new Date((a as any).createdAt).getTime();
+              const bDate = new Date((b as any).createdAt).getTime();
+              return bDate - aDate;
+            })[0]
           : null;
       }
     } catch (error) {
