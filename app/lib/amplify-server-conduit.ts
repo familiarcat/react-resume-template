@@ -114,14 +114,7 @@ interface ApiResponse<T> {
 // Define the client type
 interface AmplifyClient {
   models: {
-    Resume: {
-      get: (params: { id: string }) => Promise<ApiResponse<ResumeData>>,
-      list: (params?: Record<string, unknown>) => Promise<ApiResponse<ResumeData[]>>,
-      create: (params: Partial<ResumeData>) => Promise<ApiResponse<ResumeData>>,
-      update: (params: Partial<ResumeData> & { id: string }) => Promise<ApiResponse<ResumeData>>,
-      delete: (params: { id: string }) => Promise<ApiResponse<ResumeData>>
-    },
-    // Allow other models with a more specific index signature
+    // Define a common interface for all models
     [key: string]: {
       get: (params: Record<string, unknown>) => Promise<ApiResponse<unknown>>,
       list: (params?: Record<string, unknown>) => Promise<ApiResponse<unknown[]>>,
