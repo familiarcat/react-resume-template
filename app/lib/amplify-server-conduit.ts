@@ -1,6 +1,6 @@
 /**
  * Amplify Server Conduit
- * 
+ *
  * This module provides a server-side conduit for interacting with Amplify Gen 2.
  * It centralizes all Amplify operations and provides caching and error handling.
  */
@@ -15,25 +15,38 @@ let config: any;
 
 // Try to import the Amplify outputs
 try {
-  config = require('../../amplify_outputs.json');
+  // First try to load from environment variables
+  if (process.env.AMPLIFY_CONFIG) {
+    try {
+      config = JSON.parse(process.env.AMPLIFY_CONFIG);
+      console.log('Loaded Amplify configuration from environment variable');
+    } catch (parseError) {
+      console.error('Failed to parse AMPLIFY_CONFIG environment variable:', parseError);
+      throw parseError;
+    }
+  } else {
+    // Try to load from file
+    config = require('../../amplify_outputs.json');
+    console.log('Loaded Amplify configuration from amplify_outputs.json');
+  }
 } catch (error) {
-  console.warn('Failed to load amplify_outputs.json, using mock configuration');
+  console.warn('Failed to load Amplify configuration, using mock configuration');
   // Create a mock configuration for static builds
   config = {
     api: {
       GraphQL: {
-        endpoint: 'http://localhost:20002/graphql',
-        region: 'us-east-2',
+        endpoint: process.env.GRAPHQL_ENDPOINT || 'http://localhost:20002/graphql',
+        region: process.env.AWS_REGION || 'us-east-2',
         defaultAuthMode: 'apiKey',
-        apiKey: 'mock-api-key'
+        apiKey: process.env.API_KEY || 'mock-api-key'
       }
     },
     auth: {
       Cognito: {
-        userPoolId: 'mock-user-pool-id',
-        userPoolClientId: 'mock-user-pool-client-id',
-        identityPoolId: 'mock-identity-pool-id',
-        region: 'us-east-2'
+        userPoolId: process.env.USER_POOL_ID || 'mock-user-pool-id',
+        userPoolClientId: process.env.USER_POOL_CLIENT_ID || 'mock-user-pool-client-id',
+        identityPoolId: process.env.IDENTITY_POOL_ID || 'mock-identity-pool-id',
+        region: process.env.AWS_REGION || 'us-east-2'
       }
     }
   };
@@ -88,7 +101,7 @@ const dataCache: Record<string, CacheEntry<unknown>> = {};
 function isCacheValid(cacheKey: string): boolean {
   const entry = dataCache[cacheKey];
   if (!entry) return false;
-  
+
   const now = Date.now();
   return now - entry.timestamp < CACHE_DURATION;
 }
@@ -100,27 +113,30 @@ async function getCachedData<T>(
   cacheKey: string,
   fetchFn: () => Promise<T>
 ): Promise<T> {
+  // Sanitize cache key for logging
+  const sanitizedKey = cacheKey.replace(/[\n\r]/g, '');
+
   // Check cache first
   if (isCacheValid(cacheKey)) {
-    console.log(`Cache hit for ${cacheKey}`);
+    console.log('Cache hit for key:', sanitizedKey);
     return dataCache[cacheKey].data as T;
   }
-  
+
   // Fetch fresh data
-  console.log(`Cache miss for ${cacheKey}, fetching fresh data`);
-  
+  console.log('Cache miss for key:', sanitizedKey, 'fetching fresh data');
+
   try {
     const data = await fetchFn();
-    
+
     // Update cache
     dataCache[cacheKey] = {
       data,
       timestamp: Date.now(),
     };
-    
+
     return data;
   } catch (error) {
-    console.error(`Error fetching data for ${cacheKey}:`, error);
+    console.error('Error fetching data for key:', sanitizedKey, error instanceof Error ? error.message : 'Unknown error');
     throw error;
   }
 }
@@ -139,7 +155,7 @@ function clearCache(cacheKey?: string): void {
 // Create cached versions of data fetching functions
 export const getResume = cache(async (id?: string) => {
   const cacheKey = `resume_${id || 'latest'}`;
-  
+
   return getCachedData(cacheKey, async () => {
     try {
       if (id) {
@@ -150,10 +166,10 @@ export const getResume = cache(async (id?: string) => {
         // Use any to bypass type checking
         const result = await client.models.Resume.list();
         const data = result.data;
-        
+
         // Return the most recent resume
-        return data.length > 0 
-          ? data.sort((a: any, b: any) => 
+        return data.length > 0
+          ? data.sort((a: any, b: any) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             )[0]
           : null;
@@ -168,14 +184,14 @@ export const getResume = cache(async (id?: string) => {
 // Function to get complete resume data with all related entities
 export const getCompleteResume = cache(async (resumeId?: string) => {
   const cacheKey = `complete_resume_${resumeId || 'latest'}`;
-  
+
   return getCachedData(cacheKey, async () => {
     try {
       // Get the resume
       const resume = await getResume(resumeId);
       if (!resume) {
         console.log('No resume found, returning mock data');
-        
+
         // Return mock data for static builds
         return {
           resume: {
@@ -240,18 +256,18 @@ export const getCompleteResume = cache(async (resumeId?: string) => {
           references: []
         };
       }
-      
+
       // Get related data from the client
       // This is where we would fetch all related entities
       // For now, we'll return a simplified structure
-      
+
       return {
         resume,
         // Add other related data here
       };
     } catch (error) {
       console.error('Error fetching complete resume:', error);
-      
+
       // Return null on error
       return null;
     }

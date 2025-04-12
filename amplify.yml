@@ -1,27 +1,33 @@
 version: 1
-backend:
-  phases:
-    build:
-      commands:
-        - npm run amplify:gen2:install-deps
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - npm ci
-    build:
-      commands:
-        - npm run amplify:gen2:build
-        - node scripts/amplify-minimal-build.js
-        - node scripts/amplify-fix-required-files.js
-  artifacts:
-    baseDirectory: .
-    files:
-      - 'out/**/*'
-      - '.next/**/*'
-      - 'required-server-files.json'
-  cache:
-    paths:
-      - node_modules/**/*
-      - .next/cache/**/*
-      - .amplify-cache/**/*
+applications:
+  - backend:
+      phases:
+        build:
+          commands:
+            - npm ci
+            - npx ampx pipeline-deploy
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci
+        build:
+          commands:
+            - npm run secure-deploy
+            - npm run seed-data
+      artifacts:
+        baseDirectory: .
+        files:
+          - 'out/**/*'
+          - '.next/**/*'
+          - 'required-server-files.json'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
+          - .amplify-cache/**/*
+    appRoot: /
+    environment:
+      variables:
+        NODE_ENV: production
+        NEXT_TELEMETRY_DISABLED: 1
