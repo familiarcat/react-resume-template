@@ -5,6 +5,8 @@
  * It simulates the Amplify Gen 2 data service without requiring actual API calls.
  */
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { cache } from 'react';
 
 // Mock resume data

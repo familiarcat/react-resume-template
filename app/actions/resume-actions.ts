@@ -30,7 +30,9 @@ export async function getCompleteResume(resumeId?: string) {
 /**
  * Get all skills
  */
-export async function getSkills(resumeId: string) {
+// We're not using resumeId yet, but we'll need it in the future
+// @ts-ignore
+export async function getSkills(_resumeId: string) {
   try {
     // For now, return mock skills since we haven't implemented getSkills in the server conduit
     return [

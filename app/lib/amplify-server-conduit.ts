@@ -51,6 +51,7 @@ try {
     }
   } else {
     // Try to load from file
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
     config = require('../../amplify_outputs.json');
     console.log('Loaded Amplify configuration from amplify_outputs.json');
   }
@@ -96,17 +97,38 @@ try {
   console.error('Error configuring Amplify:', errorMessage);
 }
 
+// Define types for the Amplify client
+interface ResumeData {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  [key: string]: unknown;
+}
+
+interface ApiResponse<T> {
+  data: T | null;
+  errors: Error[] | null;
+}
+
 // Define the client type
 interface AmplifyClient {
   models: {
     Resume: {
-      get: (params: any) => Promise<{ data: any; errors: any }>,
-      list: (params?: any) => Promise<{ data: any[]; errors: any }>,
-      create: (params: any) => Promise<{ data: any; errors: any }>,
-      update: (params: any) => Promise<{ data: any; errors: any }>,
-      delete: (params: any) => Promise<{ data: any; errors: any }>
+      get: (params: { id: string }) => Promise<ApiResponse<ResumeData>>,
+      list: (params?: Record<string, unknown>) => Promise<ApiResponse<ResumeData[]>>,
+      create: (params: Partial<ResumeData>) => Promise<ApiResponse<ResumeData>>,
+      update: (params: Partial<ResumeData> & { id: string }) => Promise<ApiResponse<ResumeData>>,
+      delete: (params: { id: string }) => Promise<ApiResponse<ResumeData>>
     },
-    [key: string]: any
+    // Allow other models with a more specific index signature
+    [key: string]: {
+      get: (params: Record<string, unknown>) => Promise<ApiResponse<unknown>>,
+      list: (params?: Record<string, unknown>) => Promise<ApiResponse<unknown[]>>,
+      create: (params: Record<string, unknown>) => Promise<ApiResponse<unknown>>,
+      update: (params: Record<string, unknown>) => Promise<ApiResponse<unknown>>,
+      delete: (params: Record<string, unknown>) => Promise<ApiResponse<unknown>>
+    }
   }
 }
 
@@ -211,7 +233,9 @@ async function getCachedData<T>(
 
 /**
  * Clear cache for a specific key or all cache if no key provided
+ * @param cacheKey - Optional key to clear from cache
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function clearCache(cacheKey?: string): void {
   if (cacheKey && cacheKey in dataCache) {
     // Use delete only if the key exists
@@ -242,7 +266,7 @@ export const getResume = cache(async (id?: string) => {
 
         // Return the most recent resume
         return data.length > 0
-          ? data.sort((a: any, b: any) =>
+          ? data.sort((a: ResumeData, b: ResumeData) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             )[0]
           : null;

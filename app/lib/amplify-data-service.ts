@@ -3,7 +3,11 @@
  *
  * This server component acts as a conduit between client components and Amplify Gen 2.
  * It provides a centralized interface for data operations and implements caching.
+ *
+ * @todo Replace any types with proper types when Schema is fully defined
  */
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/api';
@@ -46,33 +50,55 @@ async function getCachedData<T>(
   cacheKey: string,
   fetchFn: () => Promise<T>
 ): Promise<T> {
+  // Sanitize and truncate cache key for logging to prevent log injection
+  // Only use alphanumeric characters, dashes, and underscores
+  const sanitizedKey = cacheKey.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 50);
+
   // Check cache first
   if (isCacheValid(cacheKey)) {
-    console.log(`Cache hit for ${cacheKey}`);
+    console.log('Cache hit for key:', sanitizedKey);
     return dataCache[cacheKey].data as T;
   }
 
   // Fetch fresh data
-  console.log(`Cache miss for ${cacheKey}, fetching fresh data`);
-  const data = await fetchFn();
+  console.log('Cache miss for key:', sanitizedKey, 'fetching fresh data');
 
-  // Update cache
-  dataCache[cacheKey] = {
-    data,
-    timestamp: Date.now(),
-  };
+  try {
+    const data = await fetchFn();
 
-  return data;
+    // Update cache
+    dataCache[cacheKey] = {
+      data,
+      timestamp: Date.now(),
+    };
+
+    return data;
+  } catch (error) {
+    // Safely log error message
+    const errorMessage = error instanceof Error ?
+      error.message.replace(/[\n\r]/g, ' ').substring(0, 200) :
+      'Unknown error';
+
+    console.error('Error fetching data for key:', sanitizedKey, errorMessage);
+    throw error;
+  }
 }
 
 /**
  * Clear cache for a specific key or all cache if no key provided
+ * @param cacheKey - Optional key to clear from cache
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function clearCache(cacheKey?: string): void {
-  if (cacheKey) {
+  if (cacheKey && cacheKey in dataCache) {
+    // Use delete only if the key exists
     delete dataCache[cacheKey];
-  } else {
-    Object.keys(dataCache).forEach(key => delete dataCache[key]);
+  } else if (!cacheKey) {
+    // For clearing all cache, create a new empty object instead of deleting keys
+    // This avoids potential issues with deleting array elements
+    Object.keys(dataCache).forEach(key => {
+      delete dataCache[key];
+    });
   }
 }
 

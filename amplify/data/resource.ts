@@ -120,7 +120,10 @@ const schema = a.schema({
 export type Schema = {
   models: {
     Todo: {
-      list: () => Promise<any[]>;
+      list: () => Promise<{
+        id: string;
+        content?: string;
+      }[]>;
     };
     Resume: {
       id: string;

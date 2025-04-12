@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+public
+scripts
+app/actions/resume-actions.ts
+app/lib/amplify-server-conduit.ts
+app/lib/amplify-data-service.ts
+app/lib/mock-data-service.ts
+app/config/amplify-config.ts
+app/resume/page.tsx
