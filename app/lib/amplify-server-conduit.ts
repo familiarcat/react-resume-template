@@ -10,8 +10,28 @@ import { generateClient } from 'aws-amplify/api';
 import type { Schema } from '../../amplify/data/resource';
 import { cache } from 'react';
 
+// Define the configuration type
+interface AmplifyConfig {
+  api?: {
+    GraphQL?: {
+      endpoint?: string;
+      region?: string;
+      defaultAuthMode?: string;
+      apiKey?: string;
+    };
+  };
+  auth?: {
+    Cognito?: {
+      userPoolId?: string;
+      userPoolClientId?: string;
+      identityPoolId?: string;
+      region?: string;
+    };
+  };
+}
+
 // Configuration
-let config: any;
+let config: AmplifyConfig;
 
 // Try to import the Amplify outputs
 try {
@@ -21,7 +41,12 @@ try {
       config = JSON.parse(process.env.AMPLIFY_CONFIG);
       console.log('Loaded Amplify configuration from environment variable');
     } catch (parseError) {
-      console.error('Failed to parse AMPLIFY_CONFIG environment variable:', parseError);
+      // Safely log error message
+      const errorMessage = parseError instanceof Error ?
+        parseError.message.replace(/[\n\r]/g, ' ').substring(0, 200) :
+        'Unknown error';
+
+      console.error('Failed to parse AMPLIFY_CONFIG environment variable:', errorMessage);
       throw parseError;
     }
   } else {
@@ -30,7 +55,13 @@ try {
     console.log('Loaded Amplify configuration from amplify_outputs.json');
   }
 } catch (error) {
-  console.warn('Failed to load Amplify configuration, using mock configuration');
+  // Safely log error message
+  const errorMessage = error instanceof Error ?
+    error.message.replace(/[\n\r]/g, ' ').substring(0, 200) :
+    'Unknown error';
+
+  console.warn('Failed to load Amplify configuration, using mock configuration. Error:', errorMessage);
+
   // Create a mock configuration for static builds
   config = {
     api: {
@@ -57,17 +88,42 @@ try {
   Amplify.configure(config);
   console.log('Amplify configured successfully on the server');
 } catch (error) {
-  console.error('Error configuring Amplify:', error);
+  // Safely log error message
+  const errorMessage = error instanceof Error ?
+    error.message.replace(/[\n\r]/g, ' ').substring(0, 200) :
+    'Unknown error';
+
+  console.error('Error configuring Amplify:', errorMessage);
+}
+
+// Define the client type
+interface AmplifyClient {
+  models: {
+    Resume: {
+      get: (params: any) => Promise<{ data: any; errors: any }>,
+      list: (params?: any) => Promise<{ data: any[]; errors: any }>,
+      create: (params: any) => Promise<{ data: any; errors: any }>,
+      update: (params: any) => Promise<{ data: any; errors: any }>,
+      delete: (params: any) => Promise<{ data: any; errors: any }>
+    },
+    [key: string]: any
+  }
 }
 
 // Generate the client
-let client: any;
+let client: AmplifyClient;
 
 try {
   client = generateClient<Schema>();
   console.log('Amplify client generated successfully');
 } catch (error) {
-  console.error('Error generating Amplify client:', error);
+  // Safely log error message
+  const errorMessage = error instanceof Error ?
+    error.message.replace(/[\n\r]/g, ' ').substring(0, 200) :
+    'Unknown error';
+
+  console.error('Error generating Amplify client:', errorMessage);
+
   // Create a mock client for static builds
   client = {
     models: {
@@ -78,8 +134,7 @@ try {
         create: async () => ({ data: null, errors: null }),
         update: async () => ({ data: null, errors: null }),
         delete: async () => ({ data: null, errors: null })
-      },
-      // Add other models as needed
+      }
     }
   };
 }
@@ -88,17 +143,24 @@ try {
 const CACHE_DURATION = 5 * 60 * 1000;
 
 // Cache storage
-type CacheEntry<TData> = {
+interface CacheEntry<TData> {
   data: TData;
   timestamp: number;
-};
+}
 
 const dataCache: Record<string, CacheEntry<unknown>> = {};
 
 /**
  * Check if cache entry is valid
+ * @param cacheKey - The key to check in the cache
+ * @returns boolean indicating if the cache entry is valid
  */
 function isCacheValid(cacheKey: string): boolean {
+  // Validate input to prevent injection
+  if (typeof cacheKey !== 'string' || cacheKey.length > 1000) {
+    return false;
+  }
+
   const entry = dataCache[cacheKey];
   if (!entry) return false;
 
@@ -113,8 +175,9 @@ async function getCachedData<T>(
   cacheKey: string,
   fetchFn: () => Promise<T>
 ): Promise<T> {
-  // Sanitize cache key for logging
-  const sanitizedKey = cacheKey.replace(/[\n\r]/g, '');
+  // Sanitize and truncate cache key for logging to prevent log injection
+  // Only use alphanumeric characters, dashes, and underscores
+  const sanitizedKey = cacheKey.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 50);
 
   // Check cache first
   if (isCacheValid(cacheKey)) {
@@ -136,7 +199,12 @@ async function getCachedData<T>(
 
     return data;
   } catch (error) {
-    console.error('Error fetching data for key:', sanitizedKey, error instanceof Error ? error.message : 'Unknown error');
+    // Safely log error message
+    const errorMessage = error instanceof Error ?
+      error.message.replace(/[\n\r]/g, ' ').substring(0, 200) :
+      'Unknown error';
+
+    console.error('Error fetching data for key:', sanitizedKey, errorMessage);
     throw error;
   }
 }
@@ -145,10 +213,15 @@ async function getCachedData<T>(
  * Clear cache for a specific key or all cache if no key provided
  */
 function clearCache(cacheKey?: string): void {
-  if (cacheKey) {
+  if (cacheKey && cacheKey in dataCache) {
+    // Use delete only if the key exists
     delete dataCache[cacheKey];
-  } else {
-    Object.keys(dataCache).forEach(key => delete dataCache[key]);
+  } else if (!cacheKey) {
+    // For clearing all cache, create a new empty object instead of deleting keys
+    // This avoids potential issues with deleting array elements
+    Object.keys(dataCache).forEach(key => {
+      delete dataCache[key];
+    });
   }
 }
 

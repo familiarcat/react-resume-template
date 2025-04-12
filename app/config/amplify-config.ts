@@ -1,6 +1,6 @@
 /**
  * Amplify Configuration
- * 
+ *
  * This file provides a centralized configuration for AWS Amplify.
  * It loads configuration from environment variables or defaults.
  */
@@ -31,18 +31,18 @@ export const amplifyConfig = {
 
 /**
  * Get Amplify configuration
- * 
+ *
  * This function returns the Amplify configuration with fallbacks for local development.
  */
-export function getAmplifyConfig() {
+export function getAmplifyConfig(): Record<string, any> {
   // Check if we're in a browser environment
   const isBrowser = typeof window !== 'undefined';
-  
+
   // In browser, use the public environment variables
   if (isBrowser) {
     return amplifyConfig;
   }
-  
+
   // In server, try to load from environment variables or amplify_outputs.json
   try {
     // First try to load from environment variables
@@ -50,23 +50,38 @@ export function getAmplifyConfig() {
       try {
         return JSON.parse(process.env.AMPLIFY_CONFIG);
       } catch (parseError) {
-        console.error('Failed to parse AMPLIFY_CONFIG environment variable:', parseError);
+        // Safely log error message
+        const errorMessage = parseError instanceof Error ?
+          parseError.message.replace(/[\n\r]/g, ' ').substring(0, 200) :
+          'Unknown error';
+
+        console.error('Failed to parse AMPLIFY_CONFIG environment variable:', errorMessage);
       }
     }
-    
+
     // Then try to load from file
     try {
       const config = require('../../amplify_outputs.json');
       return config;
     } catch (fileError) {
-      console.warn('Failed to load amplify_outputs.json');
+      // Safely log error message
+      const errorMessage = fileError instanceof Error ?
+        fileError.message.replace(/[\n\r]/g, ' ').substring(0, 200) :
+        'Unknown error';
+
+      console.warn('Failed to load amplify_outputs.json:', errorMessage);
     }
-    
+
     // Fall back to the default configuration
     return amplifyConfig;
   } catch (error) {
-    console.error('Error loading Amplify configuration:', error);
-    
+    // Safely log error message
+    const errorMessage = error instanceof Error ?
+      error.message.replace(/[\n\r]/g, ' ').substring(0, 200) :
+      'Unknown error';
+
+    console.error('Error loading Amplify configuration:', errorMessage);
+
     // Return a minimal configuration for fallback
     return {
       API: {
