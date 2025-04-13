@@ -1,6 +1,6 @@
 /**
  * Data Utilities for AWS Amplify
- * 
+ *
  * This file provides utility functions for working with AWS Amplify Data.
  * It ensures proper integration between Next.js and AWS Amplify Gen 2.
  */
@@ -18,15 +18,13 @@ export async function getDataClient() {
   if (typeof window === 'undefined') {
     throw new Error('getDataClient should only be called on the client side');
   }
-  
+
   // Dynamically import the generateClient function
   const { generateClient } = await import('aws-amplify/api');
-  
-  // Import the Schema type
-  const { Schema } = await import('../../amplify/data/resource');
-  
+
   // Generate a client for data operations
-  return generateClient<Schema>();
+  // Use 'any' type temporarily to avoid import issues
+  return generateClient<any>();
 }
 
 /**
@@ -37,12 +35,12 @@ export async function fetchResumes() {
   try {
     const client = await getDataClient();
     const { data: resumes, errors } = await client.models.Resume.list();
-    
+
     if (errors) {
       console.error('Errors fetching resumes:', errors);
       return [];
     }
-    
+
     return resumes;
   } catch (error) {
     console.error('Error fetching resumes:', error);
@@ -59,12 +57,12 @@ export async function fetchResumeById(id: string) {
   try {
     const client = await getDataClient();
     const { data: resume, errors } = await client.models.Resume.get({ id });
-    
+
     if (errors) {
       console.error(`Errors fetching resume ${id}:`, errors);
       return null;
     }
-    
+
     return resume;
   } catch (error) {
     console.error(`Error fetching resume ${id}:`, error);
