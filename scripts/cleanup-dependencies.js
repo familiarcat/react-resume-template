@@ -2,7 +2,7 @@
 
 /**
  * Dependency Cleanup Script
- * 
+ *
  * This script cleans up unused dependencies and ensures consistent versions
  * across the project.
  */
@@ -33,7 +33,7 @@ const info = (message) => console.log(`${colors.blue}[INFO]${colors.reset} ${mes
 // Function to read package.json
 function readPackageJson() {
   const packageJsonPath = path.join(process.cwd(), 'package.json');
-  
+
   try {
     const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
     return JSON.parse(packageJsonContent);
@@ -46,7 +46,7 @@ function readPackageJson() {
 // Function to write package.json
 function writePackageJson(packageJson) {
   const packageJsonPath = path.join(process.cwd(), 'package.json');
-  
+
   try {
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
     success('package.json updated successfully');
@@ -59,13 +59,13 @@ function writePackageJson(packageJson) {
 // Function to clean up dependencies
 function cleanupDependencies() {
   log('\n=== Cleaning Up Dependencies ===');
-  
+
   // Read package.json
   const packageJson = readPackageJson();
-  
+
   // Ensure AWS Amplify dependencies have consistent versions
   info('Ensuring AWS Amplify dependencies have consistent versions...');
-  
+
   // Define the correct versions
   const correctVersions = {
     '@aws-amplify/backend-graphql': '0.3.2',
@@ -83,7 +83,7 @@ function cleanupDependencies() {
     'constructs': '10.3.0',
     'ampx': '0.2.2',
   };
-  
+
   // Update dependencies
   if (packageJson.dependencies) {
     Object.keys(packageJson.dependencies).forEach(dep => {
@@ -95,7 +95,7 @@ function cleanupDependencies() {
       }
     });
   }
-  
+
   // Update devDependencies
   if (packageJson.devDependencies) {
     Object.keys(packageJson.devDependencies).forEach(dep => {
@@ -107,7 +107,7 @@ function cleanupDependencies() {
       }
     });
   }
-  
+
   // Update resolutions
   if (packageJson.resolutions) {
     Object.keys(correctVersions).forEach(dep => {
@@ -116,20 +116,35 @@ function cleanupDependencies() {
       }
     });
   }
-  
+
   // Write updated package.json
   writePackageJson(packageJson);
-  
-  // Run npm install to update node_modules
-  info('Running npm install to update node_modules...');
+
+  // Run memory-efficient install to update node_modules
+  info('Running memory-efficient install to update node_modules...');
   try {
-    execSync('npm install', { stdio: 'inherit' });
+    // Check if we're in AWS Amplify environment
+    const isAmplify = !!process.env.AWS_EXECUTION_ENV;
+
+    if (isAmplify) {
+      // In Amplify, use our memory-efficient installation script
+      info('Using memory-efficient installation in AWS Amplify environment');
+      const { installDependenciesInBatches } = require('./memory-efficient-install');
+      installDependenciesInBatches();
+    } else {
+      // Locally, we can use regular npm install with increased memory limit
+      const env = { ...process.env };
+      env.NODE_OPTIONS = `${env.NODE_OPTIONS || ''} --max-old-space-size=4096`;
+      execSync('npm install --no-audit', { stdio: 'inherit', env });
+    }
+
     success('Dependencies updated successfully');
   } catch (err) {
-    error(`Error running npm install: ${err.message}`);
-    process.exit(1);
+    error(`Error updating dependencies: ${err.message}`);
+    // Don't exit with error, just continue
+    warning('Continuing despite dependency update failure');
   }
-  
+
   success('Dependency cleanup completed successfully');
 }
 

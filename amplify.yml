@@ -3,12 +3,13 @@ backend:
   phases:
     build:
       commands:
-        - npm ci || npm install
+        - export NODE_OPTIONS="--max-old-space-size=2048"
+        - npm ci || npm install --no-audit --no-fund
         - npm install -g @aws-amplify/cli@12.10.0
         - npm install -g ampx@0.2.2
         - npm run amplify:prebuild
-        - node scripts/fix-dependencies.js
-        - node scripts/cleanup-dependencies.js
+        - npm run fix-dependencies
+        - npm run install:efficient
         - npx ampx generate outputs
         - echo "Amplify backend build completed"
 frontend:
@@ -17,9 +18,11 @@ frontend:
       commands:
         - echo "Node.js version $(node -v)"
         - echo "NPM version $(npm -v)"
-        - npm ci || npm install
+        - export NODE_OPTIONS="--max-old-space-size=2048"
+        - npm ci || npm install --no-audit --no-fund
         - npm run amplify:prebuild
-        - node scripts/fix-dependencies.js
+        - npm run fix-dependencies
+        - npm run install:efficient
     build:
       commands:
         - echo "Running build..."

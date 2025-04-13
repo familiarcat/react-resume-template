@@ -137,9 +137,19 @@ async function main() {
   // Update package-lock.json
   updatePackageLock();
 
-  // Install dependencies with --no-audit to speed up installation
-  info('Installing dependencies...');
-  execCommand('npm install --no-audit', { ignoreError: true });
+  // Use memory-efficient installation
+  info('Using memory-efficient installation...');
+  try {
+    const { installDependenciesInBatches } = require('./memory-efficient-install');
+    await installDependenciesInBatches();
+  } catch (err) {
+    warning(`Memory-efficient installation failed: ${err.message}`);
+    warning('Falling back to regular installation with memory limits...');
+    execCommand('npm install --no-audit --no-fund', {
+      ignoreError: true,
+      env: { ...process.env, NODE_OPTIONS: '--max-old-space-size=2048' }
+    });
+  }
 
   // Calculate elapsed time
   const endTime = Date.now();
