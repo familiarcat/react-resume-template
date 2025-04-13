@@ -18,9 +18,13 @@
     "fix-dependencies": "node scripts/fix-dependencies.js",
     "postinstall": "npm run fix-dependencies",
 
-    "secure-deploy": "node scripts/amplify-secure-deploy.js",
-    "secure-deploy:dev": "node scripts/amplify-secure-deploy.js development",
-    "secure-deploy:prod": "node scripts/amplify-secure-deploy.js production",
+    "secure-deploy": "npm run build && node scripts/fix-amplify-files.js",
+    "secure-deploy:dev": "npm run build && node scripts/fix-amplify-files.js && node scripts/amplify-secure-deploy.js development",
+    "secure-deploy:prod": "npm run build && node scripts/fix-amplify-files.js && node scripts/amplify-secure-deploy.js production",
+
+    "amplify:fix-files": "node scripts/fix-amplify-files.js",
+    "amplify:gen2:fix-files": "node scripts/fix-amplify-files.js",
+    "amplify:gen2:cicd": "npm run build && npm run amplify:fix-files && npm run seed-data:prod",
 
     "seed-data": "node scripts/seed-data.js",
     "seed-data:dev": "node scripts/seed-data.js development",
@@ -29,6 +33,9 @@
     "sync-data:dev-to-prod": "node scripts/seed-data.js sync development production",
     "sync-data:prod-to-dev": "node scripts/seed-data.js sync production development",
 
+    "aws:fix": "node scripts/aws-credential-fix.js",
+    "aws:check": "node scripts/check-aws.js",
+
     "sandbox": "npx ampx sandbox",
     "sandbox:once": "npx ampx sandbox --once",
     "local-dev": "npm run sandbox && npm run dev",
@@ -36,9 +43,6 @@
     "amplify:generate-outputs": "npx ampx generate outputs",
     "amplify:generate-graphql": "npx ampx generate graphql-client-code",
     "amplify:pipeline-deploy": "npx ampx pipeline-deploy",
-
-    "aws:check": "node scripts/check-aws.js",
-    "aws:fix": "node scripts/fix-aws-credentials.js",
 
     "ci-deploy": "CI=true npm run secure-deploy && npm run seed-data",
     "verify-deploy": "node scripts/verify-amplify-deployment.js",
