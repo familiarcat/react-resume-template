@@ -3,77 +3,32 @@
 const nextConfig = {
   // Disable ESLint during build
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
 
   // Disable TypeScript type checking during build
   typescript: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has TypeScript errors.
     ignoreBuildErrors: true,
   },
-  // For Amplify Gen 2 deployment, we need to use server-side rendering
-  // output: 'export', // Uncomment for static export
+
+  // Use static export for faster builds
+  output: 'export',
+
+  // Unoptimized images for faster build
   images: {
     unoptimized: true,
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '*.amazonaws.com',
-      },
-    ],
   },
 
-  // Transpile AWS Amplify modules
+  // Minimal transpilation
   transpilePackages: [
-    '@aws-amplify/ui-react',
-    '@aws-amplify/ui-react-native',
     'aws-amplify',
-    '@aws-amplify/core',
-    '@aws-amplify/auth',
-    '@aws-amplify/storage',
-    '@aws-amplify/api',
-    '@aws-amplify/datastore',
   ],
-
-  // Security headers
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on'
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains'
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN'
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff'
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin'
-          }
-        ]
-      }
-    ];
-  },
 
   // Disable powered by header
   poweredByHeader: false,
 
-  // Enable React strict mode
-  reactStrictMode: true,
+  // Disable React strict mode for faster builds
+  reactStrictMode: false,
 };
 
 module.exports = nextConfig;

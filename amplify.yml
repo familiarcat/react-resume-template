@@ -6,25 +6,20 @@ backend:
         - 'export NODE_OPTIONS="--max-old-space-size=2048"'
         - 'echo "Node.js version: $(node -v)"'
         - 'echo "NPM version: $(npm -v)"'
-        - 'npm install -g @aws-amplify/cli@12.10.0 ampx@0.2.2'
-        - 'node scripts/optimize-dependencies.js'
-        - 'npm install --no-audit --no-fund'
+        - 'npm install -g ampx@0.2.2'
         - 'npx ampx generate outputs'
-        - 'echo "Amplify backend build completed"'
 frontend:
   phases:
     preBuild:
       commands:
-        - 'echo "Node.js version: $(node -v)"'
-        - 'echo "NPM version: $(npm -v)"'
         - 'export NODE_OPTIONS="--max-old-space-size=2048"'
-        - 'node scripts/optimize-dependencies.js'
-        - 'npm install --no-audit --no-fund'
-        - 'npm install --no-save --no-audit --no-fund typescript tailwindcss postcss autoprefixer'
+        - 'npm install --no-audit --no-fund --production'
+        - 'node scripts/use-minimal-package.js use'
     build:
       commands:
-        - 'echo "Running fast build..."'
-        - 'node scripts/fast-build.js'
+        - 'echo "Running minimal build..."'
+        - 'npx next build'
+        - 'node scripts/use-minimal-package.js restore'
   artifacts:
     baseDirectory: .next
     files:
