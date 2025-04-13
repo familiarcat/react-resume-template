@@ -3,7 +3,11 @@ backend:
   phases:
     build:
       commands:
-        - 'echo "Skipping backend build for static export"'
+        - 'export NODE_OPTIONS="--max-old-space-size=2048"'
+        - 'echo "Node.js version: $(node -v)"'
+        - 'echo "NPM version: $(npm -v)"'
+        - 'npm install -g ampx@0.2.2'
+        - 'npx ampx generate outputs'
 frontend:
   phases:
     preBuild:
@@ -17,7 +21,7 @@ frontend:
         - 'node scripts/verify-dependencies.js'
     build:
       commands:
-        - 'echo "Running minimal build..."'
+        - 'echo "Running Next.js build..."'
         - 'npx next build'
   artifacts:
     baseDirectory: out
