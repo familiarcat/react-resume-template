@@ -91,6 +91,11 @@ async function checkAwsCredentials() {
   try {
     // Use the new AWS credential manager
     execCommand('npm run aws:manage', { ignoreError: true });
+
+    // Fix DynamoDB access issues
+    info('Fixing DynamoDB access issues...');
+    execCommand('npm run db:fix', { ignoreError: true });
+
     return true;
   } catch (err) {
     warning('AWS credentials check failed, attempting to fix...');
@@ -225,7 +230,11 @@ async function syncData(sourceEnv, targetEnv) {
 
     // First try with the bidirectional sync script
     info('Using bidirectional sync for data synchronization...');
-    execCommand(`node scripts/bidirectional-sync.js ${sourceEnv} ${targetEnv}`, { ignoreError: true });
+    // Import the normalizeEnvName function from bidirectional-sync.js
+    const { normalizeEnvName } = require('./bidirectional-sync');
+    const sourceEnvName = normalizeEnvName(sourceEnv);
+    const targetEnvName = normalizeEnvName(targetEnv);
+    execCommand(`node scripts/bidirectional-sync.js ${sourceEnvName} ${targetEnvName}`, { ignoreError: true });
 
     // If bidirectional sync fails, try with the DynamoDB utility
     info('Using DynamoDB utility as fallback...');

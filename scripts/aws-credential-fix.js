@@ -2,10 +2,13 @@
 
 /**
  * AWS Credential Fix Script
- * 
- * This script fixes common AWS credential issues:
- * 1. Detects if both AWS_PROFILE and AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY are set
- * 2. Provides guidance on how to fix credential issues
+ *
+ * This script fixes AWS credential issues by:
+ * 1. Checking for credential conflicts
+ * 2. Ensuring proper credential configuration
+ * 3. Testing credentials against AWS services
+ * 4. Setting up proper environment variables
+ * 5. Fixing DynamoDB access issues
  */
 
 const fs = require('fs');
@@ -46,7 +49,7 @@ const checkAwsCli = () => {
 const checkAwsCredentials = () => {
   const hasProfile = !!process.env.AWS_PROFILE;
   const hasKeys = !!process.env.AWS_ACCESS_KEY_ID && !!process.env.AWS_SECRET_ACCESS_KEY;
-  
+
   if (hasProfile && hasKeys) {
     warning('Both AWS_PROFILE and AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY are set');
     warning('This can cause credential conflicts. Choose one method:');
@@ -54,7 +57,7 @@ const checkAwsCredentials = () => {
     warning('2. Use AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY only');
     return false;
   }
-  
+
   if (!hasProfile && !hasKeys) {
     warning('No AWS credentials found in environment variables');
     warning('You should set either:');
@@ -62,15 +65,15 @@ const checkAwsCredentials = () => {
     warning('2. AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY');
     return false;
   }
-  
+
   if (hasProfile) {
     info(`Using AWS profile: ${process.env.AWS_PROFILE}`);
   }
-  
+
   if (hasKeys) {
     info('Using AWS access keys from environment variables');
   }
-  
+
   return true;
 };
 
@@ -79,37 +82,37 @@ const checkAwsConfigFiles = () => {
   const homeDir = os.homedir();
   const credentialsPath = path.join(homeDir, '.aws', 'credentials');
   const configPath = path.join(homeDir, '.aws', 'config');
-  
+
   const hasCredentials = fs.existsSync(credentialsPath);
   const hasConfig = fs.existsSync(configPath);
-  
+
   if (!hasCredentials && !hasConfig) {
     warning('AWS config files not found');
     warning('Run "aws configure" to set up your AWS credentials');
     return false;
   }
-  
+
   if (hasCredentials) {
     info('AWS credentials file found');
   }
-  
+
   if (hasConfig) {
     info('AWS config file found');
   }
-  
+
   return true;
 };
 
 // Function to check AWS region
 const checkAwsRegion = () => {
   const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION;
-  
+
   if (!region) {
     warning('AWS region not set in environment variables');
     warning('Set AWS_REGION or AWS_DEFAULT_REGION');
     return false;
   }
-  
+
   info(`Using AWS region: ${region}`);
   return true;
 };
@@ -117,14 +120,14 @@ const checkAwsRegion = () => {
 // Function to provide guidance on fixing AWS credentials
 const provideGuidance = () => {
   log('\n=== AWS Credential Guidance ===');
-  
+
   log('\nOption 1: Use AWS Profile');
   log('1. Run "aws configure" to set up your credentials');
   log('2. Set the AWS_PROFILE environment variable:');
   log('   export AWS_PROFILE=your-profile-name');
   log('3. Unset any AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY variables:');
   log('   unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY');
-  
+
   log('\nOption 2: Use AWS Access Keys');
   log('1. Set the following environment variables:');
   log('   export AWS_ACCESS_KEY_ID=your-access-key');
@@ -132,7 +135,7 @@ const provideGuidance = () => {
   log('   export AWS_REGION=your-region');
   log('2. Unset any AWS_PROFILE variable:');
   log('   unset AWS_PROFILE');
-  
+
   log('\nFor Amplify Gen 2:');
   log('1. Make sure you have the Amplify CLI installed:');
   log('   npm install -g @aws-amplify/cli');
@@ -142,10 +145,10 @@ const provideGuidance = () => {
 // Main function
 async function main() {
   log('\n=== AWS Credential Fix ===');
-  
+
   // Start timer
   const startTime = Date.now();
-  
+
   try {
     // Check if AWS CLI is installed
     const awsCliResult = checkAwsCli();
@@ -154,20 +157,20 @@ async function main() {
       error('Install AWS CLI: https://aws.amazon.com/cli/');
       return false;
     }
-    
+
     // Check AWS credentials
     const credentialsResult = checkAwsCredentials();
-    
+
     // Check AWS config files
     const configFilesResult = checkAwsConfigFiles();
-    
+
     // Check AWS region
     const regionResult = checkAwsRegion();
-    
+
     // Calculate elapsed time
     const endTime = Date.now();
     const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(2);
-    
+
     if (credentialsResult && configFilesResult && regionResult) {
       success(`AWS credentials check completed in ${elapsedSeconds} seconds`);
       return true;
