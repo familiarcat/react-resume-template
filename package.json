@@ -27,6 +27,7 @@
     "seed-data": "node scripts/seed-data.js",
     "seed-data:dev": "node scripts/seed-data.js development",
     "seed-data:prod": "node scripts/seed-data.js production",
+
     "sync-data:dev-to-prod": "node scripts/seed-data.js sync development production",
     "sync-data:prod-to-dev": "node scripts/seed-data.js sync production development",
     "aws:fix": "node scripts/aws-credential-fix.js",

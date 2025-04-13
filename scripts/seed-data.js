@@ -33,9 +33,28 @@ const warning = (message) => console.log(`${colors.yellow}⚠ ${message}${colors
 const error = (message) => console.log(`${colors.red}✗ ${message}${colors.reset}`);
 const info = (message) => console.log(`${colors.blue}ℹ ${message}${colors.reset}`);
 
-// Get environment from command line
-const environment = process.argv[2] || 'development';
+// Get command and environments from command line
+const args = process.argv.slice(2);
+let command = 'seed';
+let sourceEnv = 'development';
+let targetEnv = null;
+
+if (args.length >= 1) {
+  if (args[0] === 'sync') {
+    command = 'sync';
+    sourceEnv = args[1] || 'development';
+    targetEnv = args[2] || 'production';
+  } else {
+    sourceEnv = args[0];
+  }
+}
+
+const environment = sourceEnv;
 info(`Environment: ${environment}`);
+
+if (command === 'sync') {
+  info(`Sync Mode: ${sourceEnv} -> ${targetEnv}`);
+}
 
 // Configure DynamoDB client
 const getClient = () => {
@@ -500,8 +519,14 @@ async function scanTable(client, tableName) {
 
 // Main function
 async function main() {
-  log('\n=== Data Seeding for Amplify Gen 2 ===');
-  log(`Environment: ${environment}`);
+  if (command === 'sync') {
+    log('\n=== Data Syncing for Amplify Gen 2 ===');
+    log(`Source Environment: ${sourceEnv}`);
+    log(`Target Environment: ${targetEnv}`);
+  } else {
+    log('\n=== Data Seeding for Amplify Gen 2 ===');
+    log(`Environment: ${environment}`);
+  }
 
   // Start timer
   const startTime = Date.now();
@@ -521,33 +546,52 @@ async function main() {
       warning('Using default credentials or IAM role');
     }
 
-    // Seed resume data
-    const seedResult = await seedResumeData();
+    let result = false;
+
+    if (command === 'sync') {
+      // Sync data between environments
+      result = await syncData(sourceEnv, targetEnv);
+    } else {
+      // Seed resume data
+      result = await seedResumeData();
+    }
 
     // Calculate elapsed time
     const endTime = Date.now();
     const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(2);
 
-    if (seedResult) {
-      success(`Data seeding completed in ${elapsedSeconds} seconds`);
+    if (result) {
+      if (command === 'sync') {
+        success(`Data syncing completed in ${elapsedSeconds} seconds`);
+      } else {
+        success(`Data seeding completed in ${elapsedSeconds} seconds`);
+      }
       return true;
     } else {
-      error(`Data seeding failed after ${elapsedSeconds} seconds`);
+      if (command === 'sync') {
+        error(`Data syncing failed after ${elapsedSeconds} seconds`);
+      } else {
+        error(`Data seeding failed after ${elapsedSeconds} seconds`);
+      }
 
       // In Amplify environment, we don't want to fail the build
       if (isAmplifyEnv) {
-        warning('Continuing despite seeding failure in Amplify environment');
+        warning('Continuing despite failure in Amplify environment');
         return true;
       }
 
       return false;
     }
   } catch (err) {
-    error(`Data seeding failed: ${err.message}`);
+    if (command === 'sync') {
+      error(`Data syncing failed: ${err.message}`);
+    } else {
+      error(`Data seeding failed: ${err.message}`);
+    }
 
     // In Amplify environment, we don't want to fail the build
     if (process.env.AWS_EXECUTION_ENV && process.env.AWS_EXECUTION_ENV.startsWith('AWS_ECS')) {
-      warning('Continuing despite seeding failure in Amplify environment');
+      warning('Continuing despite failure in Amplify environment');
       return true;
     }
 
