@@ -7,8 +7,8 @@
  * It supports both local development and production environments.
  */
 
-const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBClient, ListTablesCommand } = require('@aws-sdk/client-dynamodb');
+const { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, ScanCommand } = require('@aws-sdk/lib-dynamodb');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -57,14 +57,18 @@ if (command === 'sync') {
 }
 
 // Configure DynamoDB client
-const getClient = () => {
+const getClient = (env = environment) => {
   const config = {
     region: process.env.AWS_REGION || 'us-east-2',
   };
 
-  // Use local endpoint for development
-  if (environment === 'development') {
-    config.endpoint = process.env.DYNAMODB_LOCAL_ENDPOINT || 'http://localhost:20002';
+  // Use local endpoint for development if specified
+  if (env === 'development' && process.env.DYNAMODB_LOCAL_ENDPOINT) {
+    config.endpoint = process.env.DYNAMODB_LOCAL_ENDPOINT;
+    info(`Using local DynamoDB endpoint: ${config.endpoint}`);
+  } else {
+    // For remote environments, always use AWS credentials
+    info(`Using AWS DynamoDB for ${env} environment`);
   }
 
   // Add credentials if provided
@@ -79,9 +83,9 @@ const getClient = () => {
       config.credentials.sessionToken = process.env.AWS_SESSION_TOKEN;
     }
 
-    info(`Using AWS credentials for ${environment} environment`);
+    info(`Using AWS credentials for ${env} environment`);
   } else {
-    info(`Using default AWS credentials for ${environment} environment`);
+    info(`Using default AWS credentials for ${env} environment`);
   }
 
   const client = new DynamoDBClient(config);
@@ -426,29 +430,11 @@ const syncData = async (sourceEnv, targetEnv) => {
   log(`\n=== Syncing Data from ${sourceEnv} to ${targetEnv} ===`);
 
   try {
-    // Configure source client
-    const sourceConfig = {
-      region: process.env.AWS_REGION || 'us-east-2',
-    };
+    // Get source and target clients using the updated getClient function
+    const sourceClient = getClient(sourceEnv);
+    const targetClient = getClient(targetEnv);
 
-    if (sourceEnv === 'development') {
-      sourceConfig.endpoint = process.env.DYNAMODB_LOCAL_ENDPOINT || 'http://localhost:20002';
-    }
-
-    const sourceClient = DynamoDBDocumentClient.from(new DynamoDBClient(sourceConfig));
-
-    // Configure target client
-    const targetConfig = {
-      region: process.env.AWS_REGION || 'us-east-2',
-    };
-
-    if (targetEnv === 'development') {
-      targetConfig.endpoint = process.env.DYNAMODB_LOCAL_ENDPOINT || 'http://localhost:20002';
-    }
-
-    const targetClient = DynamoDBDocumentClient.from(new DynamoDBClient(targetConfig));
-
-    // Get table names
+    // Create tables in both environments if they don't exist
     const tableNames = [
       'Resume',
       'ContactInfo',
@@ -460,6 +446,17 @@ const syncData = async (sourceEnv, targetEnv) => {
       'Position',
       'Skill'
     ];
+
+    // Check if tables exist in source environment
+    let sourceTables = [];
+    try {
+      const sourceTablesResponse = await sourceClient.send(new ListTablesCommand({}));
+      sourceTables = sourceTablesResponse.TableNames || [];
+    } catch (err) {
+      warning(`Error listing tables in source environment: ${err.message}`);
+    }
+
+    // Use the table names defined above
 
     // For each table, get all items from source and put them in target
     for (const tableName of tableNames) {
@@ -499,22 +496,28 @@ async function scanTable(client, tableName) {
   const items = [];
   let lastEvaluatedKey = null;
 
-  do {
-    const params = {
-      TableName: tableName,
-      Limit: 100,
-    };
+  try {
+    do {
+      const params = {
+        TableName: tableName,
+        Limit: 100,
+      };
 
-    if (lastEvaluatedKey) {
-      params.ExclusiveStartKey = lastEvaluatedKey;
-    }
+      if (lastEvaluatedKey) {
+        params.ExclusiveStartKey = lastEvaluatedKey;
+      }
 
-    const response = await client.send(new QueryCommand(params));
-    items.push(...(response.Items || []));
-    lastEvaluatedKey = response.LastEvaluatedKey;
-  } while (lastEvaluatedKey);
+      // Use ScanCommand instead of QueryCommand for scanning tables
+      const response = await client.send(new ScanCommand(params));
+      items.push(...(response.Items || []));
+      lastEvaluatedKey = response.LastEvaluatedKey;
+    } while (lastEvaluatedKey);
 
-  return items;
+    return items;
+  } catch (err) {
+    error(`Error scanning table ${tableName}: ${err.message}`);
+    return [];
+  }
 };
 
 // Main function

@@ -2,7 +2,7 @@
 
 /**
  * DynamoDB Utility Script
- * 
+ *
  * This script provides utility functions for working with DynamoDB.
  * It helps with creating tables, seeding data, and syncing between environments.
  */
@@ -38,9 +38,13 @@ function getClient(environment = 'development') {
     region: process.env.AWS_REGION || 'us-east-2',
   };
 
-  // Use local endpoint for development
-  if (environment === 'development') {
-    config.endpoint = process.env.DYNAMODB_LOCAL_ENDPOINT || 'http://localhost:20002';
+  // Use local endpoint for development if specified
+  if (environment === 'development' && process.env.DYNAMODB_LOCAL_ENDPOINT) {
+    config.endpoint = process.env.DYNAMODB_LOCAL_ENDPOINT;
+    info(`Using local DynamoDB endpoint: ${config.endpoint}`);
+  } else {
+    // For remote environments, always use AWS credentials
+    info(`Using AWS DynamoDB for ${environment} environment`);
   }
 
   // Add credentials if provided
@@ -63,7 +67,7 @@ function getClient(environment = 'development') {
 // Function to list tables
 async function listTables(environment = 'development') {
   const client = getClient(environment);
-  
+
   try {
     const command = new ListTablesCommand({});
     const response = await client.send(command);
@@ -83,32 +87,32 @@ async function tableExists(tableName, environment = 'development') {
 // Function to create table
 async function createTable(tableDefinition, environment = 'development') {
   const client = getClient(environment);
-  
+
   try {
     // Check if table already exists
     if (await tableExists(tableDefinition.TableName, environment)) {
       info(`Table ${tableDefinition.TableName} already exists`);
       return true;
     }
-    
+
     // Create table
     const command = new CreateTableCommand(tableDefinition);
     await client.send(command);
-    
+
     // Wait for table to be active
     let tableActive = false;
     let attempts = 0;
-    
+
     while (!tableActive && attempts < 10) {
       attempts++;
-      
+
       try {
         const describeCommand = new DescribeTableCommand({
           TableName: tableDefinition.TableName
         });
-        
+
         const response = await client.send(describeCommand);
-        
+
         if (response.Table.TableStatus === 'ACTIVE') {
           tableActive = true;
         } else {
@@ -120,7 +124,7 @@ async function createTable(tableDefinition, environment = 'development') {
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
     }
-    
+
     success(`Table ${tableDefinition.TableName} created successfully`);
     return true;
   } catch (err) {
@@ -132,13 +136,13 @@ async function createTable(tableDefinition, environment = 'development') {
 // Function to put item
 async function putItem(tableName, item, environment = 'development') {
   const client = getClient(environment);
-  
+
   try {
     const command = new PutCommand({
       TableName: tableName,
       Item: item
     });
-    
+
     await client.send(command);
     return true;
   } catch (err) {
@@ -150,13 +154,13 @@ async function putItem(tableName, item, environment = 'development') {
 // Function to get item
 async function getItem(tableName, key, environment = 'development') {
   const client = getClient(environment);
-  
+
   try {
     const command = new GetCommand({
       TableName: tableName,
       Key: key
     });
-    
+
     const response = await client.send(command);
     return response.Item;
   } catch (err) {
@@ -168,28 +172,28 @@ async function getItem(tableName, key, environment = 'development') {
 // Function to scan table
 async function scanTable(tableName, environment = 'development') {
   const client = getClient(environment);
-  
+
   try {
     const items = [];
     let lastEvaluatedKey = null;
-    
+
     do {
       const params = {
         TableName: tableName,
         Limit: 100
       };
-      
+
       if (lastEvaluatedKey) {
         params.ExclusiveStartKey = lastEvaluatedKey;
       }
-      
+
       const command = new ScanCommand(params);
       const response = await client.send(command);
-      
+
       items.push(...(response.Items || []));
       lastEvaluatedKey = response.LastEvaluatedKey;
     } while (lastEvaluatedKey);
-    
+
     return items;
   } catch (err) {
     error(`Error scanning table ${tableName}: ${err.message}`);
@@ -200,28 +204,28 @@ async function scanTable(tableName, environment = 'development') {
 // Function to sync table between environments
 async function syncTable(tableName, sourceEnv, targetEnv) {
   info(`Syncing table: ${tableName}`);
-  
+
   try {
     // Get all items from source
     const sourceItems = await scanTable(tableName, sourceEnv);
     info(`Found ${sourceItems.length} items in source table`);
-    
+
     if (sourceItems.length === 0) {
       warning(`No items found in source table ${tableName}`);
       return true;
     }
-    
+
     // Put all items in target
     let successCount = 0;
-    
+
     for (const item of sourceItems) {
       const result = await putItem(tableName, item, targetEnv);
-      
+
       if (result) {
         successCount++;
       }
     }
-    
+
     info(`Successfully synced ${successCount} of ${sourceItems.length} items in ${tableName}`);
     return successCount === sourceItems.length;
   } catch (err) {
@@ -351,17 +355,17 @@ async function createSampleTables(environment = 'development') {
       }
     }
   ];
-  
+
   let success = true;
-  
+
   for (const table of tables) {
     const result = await createTable(table, environment);
-    
+
     if (!result) {
       success = false;
     }
   }
-  
+
   return success;
 }
 
@@ -378,7 +382,7 @@ async function seedSampleData(environment = 'development') {
     experienceId: '1',
     skillIds: ['1', '2', '3']
   };
-  
+
   // Sample contact info
   const contactInfo = {
     id: '1',
@@ -387,19 +391,19 @@ async function seedSampleData(environment = 'development') {
     website: 'https://johndoe.com',
     location: 'San Francisco, CA'
   };
-  
+
   // Sample summary
   const summary = {
     id: '1',
     text: 'Experienced software engineer with a passion for building scalable web applications.'
   };
-  
+
   // Sample education
   const education = {
     id: '1',
     schoolIds: ['1']
   };
-  
+
   // Sample school
   const school = {
     id: '1',
@@ -407,7 +411,7 @@ async function seedSampleData(environment = 'development') {
     location: 'Berkeley, CA',
     degreeIds: ['1']
   };
-  
+
   // Sample degree
   const degree = {
     id: '1',
@@ -415,13 +419,13 @@ async function seedSampleData(environment = 'development') {
     field: 'Computer Science',
     graduationDate: '2018-05-15'
   };
-  
+
   // Sample experience
   const experience = {
     id: '1',
     positionIds: ['1', '2']
   };
-  
+
   // Sample positions
   const positions = [
     {
@@ -445,7 +449,7 @@ async function seedSampleData(environment = 'development') {
       description: 'Developed web applications using React and Node.js.'
     }
   ];
-  
+
   // Sample skills
   const skills = [
     {
@@ -464,39 +468,39 @@ async function seedSampleData(environment = 'development') {
       level: 'Advanced'
     }
   ];
-  
+
   try {
     // Put resume
     await putItem('Resume', resumeData, environment);
-    
+
     // Put contact info
     await putItem('ContactInfo', contactInfo, environment);
-    
+
     // Put summary
     await putItem('Summary', summary, environment);
-    
+
     // Put education
     await putItem('Education', education, environment);
-    
+
     // Put school
     await putItem('School', school, environment);
-    
+
     // Put degree
     await putItem('Degree', degree, environment);
-    
+
     // Put experience
     await putItem('Experience', experience, environment);
-    
+
     // Put positions
     for (const position of positions) {
       await putItem('Position', position, environment);
     }
-    
+
     // Put skills
     for (const skill of skills) {
       await putItem('Skill', skill, environment);
     }
-    
+
     success('Sample data seeded successfully');
     return true;
   } catch (err) {
@@ -511,9 +515,9 @@ async function main() {
   const command = args[0] || 'help';
   const environment = args[1] || 'development';
   const targetEnv = args[2];
-  
+
   log('\n=== DynamoDB Utility ===');
-  
+
   switch (command) {
     case 'list-tables':
       info(`Listing tables in ${environment} environment...`);
@@ -521,42 +525,60 @@ async function main() {
       log('\nTables:');
       tables.forEach(table => log(`- ${table}`));
       break;
-      
+
     case 'create-tables':
       info(`Creating tables in ${environment} environment...`);
       await createSampleTables(environment);
       break;
-      
+
     case 'seed-data':
       info(`Seeding data in ${environment} environment...`);
       await createSampleTables(environment);
       await seedSampleData(environment);
       break;
-      
+
     case 'sync':
       if (!targetEnv) {
         error('Target environment is required for sync command');
         process.exit(1);
       }
-      
+
       info(`Syncing data from ${environment} to ${targetEnv}...`);
-      
+
       // Get tables
-      const tablesToSync = await listTables(environment);
-      
+      let tablesToSync = await listTables(environment);
+
+      // If no tables found in source environment, create sample tables in both environments
+      // and seed data in source environment
       if (tablesToSync.length === 0) {
-        error(`No tables found in ${environment} environment`);
-        process.exit(1);
+        warning(`No tables found in ${environment} environment. Creating sample tables...`);
+
+        // Create tables in source environment
+        await createSampleTables(environment);
+
+        // Create tables in target environment
+        await createSampleTables(targetEnv);
+
+        // Seed data in source environment
+        await seedSampleData(environment);
+
+        // Get tables again
+        tablesToSync = await listTables(environment);
+
+        if (tablesToSync.length === 0) {
+          error(`Failed to create tables in ${environment} environment`);
+          process.exit(1);
+        }
       }
-      
+
       // Sync each table
       for (const table of tablesToSync) {
         await syncTable(table, environment, targetEnv);
       }
-      
+
       success(`Data sync from ${environment} to ${targetEnv} completed`);
       break;
-      
+
     case 'help':
     default:
       log('\nUsage:');
