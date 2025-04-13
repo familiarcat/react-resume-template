@@ -1,19 +1,31 @@
 /**
  * Data Utilities for AWS Amplify
- * 
+ *
  * This file provides utility functions for working with AWS Amplify Data.
  * It ensures proper integration between Next.js and AWS Amplify Gen 2.
  */
 
-import { generateClient } from 'aws-amplify/api';
-import type { Schema } from '@/amplify/data/resource';
 import { configureAmplify } from './amplify-config';
 
 // Ensure Amplify is configured
 configureAmplify();
 
-// Generate a client for data operations
-export const dataClient = generateClient<Schema>();
+/**
+ * Generate a client for data operations
+ * This function should be called on the client side
+ */
+export async function getDataClient() {
+  if (typeof window === 'undefined') {
+    throw new Error('getDataClient should only be called on the client side');
+  }
+
+  // Dynamically import the generateClient function
+  const { generateClient } = await import('aws-amplify/api');
+
+  // Generate a client for data operations
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return generateClient<any>();
+}
 
 /**
  * Fetch all resumes
@@ -21,13 +33,14 @@ export const dataClient = generateClient<Schema>();
  */
 export async function fetchResumes() {
   try {
-    const { data: resumes, errors } = await dataClient.models.Resume.list();
-    
+    const client = await getDataClient();
+    const { data: resumes, errors } = await client.models.Resume.list({});
+
     if (errors) {
       console.error('Errors fetching resumes:', errors);
       return [];
     }
-    
+
     return resumes;
   } catch (error) {
     console.error('Error fetching resumes:', error);
@@ -42,13 +55,14 @@ export async function fetchResumes() {
  */
 export async function fetchResumeById(id: string) {
   try {
-    const { data: resume, errors } = await dataClient.models.Resume.get({ id });
-    
+    const client = await getDataClient();
+    const { data: resume, errors } = await client.models.Resume.get({ id: id });
+
     if (errors) {
       console.error(`Errors fetching resume ${id}:`, errors);
       return null;
     }
-    
+
     return resume;
   } catch (error) {
     console.error(`Error fetching resume ${id}:`, error);
@@ -61,15 +75,16 @@ export async function fetchResumeById(id: string) {
  * @param resumeData Resume data
  * @returns Promise with created resume
  */
-export async function createResume(resumeData: Partial<Schema['models']['Resume']>) {
+export async function createResume(resumeData: any) {
   try {
-    const { data: resume, errors } = await dataClient.models.Resume.create(resumeData);
-    
+    const client = await getDataClient();
+    const { data: resume, errors } = await client.models.Resume.create(resumeData);
+
     if (errors) {
       console.error('Errors creating resume:', errors);
       return null;
     }
-    
+
     return resume;
   } catch (error) {
     console.error('Error creating resume:', error);
@@ -82,15 +97,16 @@ export async function createResume(resumeData: Partial<Schema['models']['Resume'
  * @param resumeData Resume data with ID
  * @returns Promise with updated resume
  */
-export async function updateResume(resumeData: Partial<Schema['models']['Resume']> & { id: string }) {
+export async function updateResume(resumeData: any & { id: string }) {
   try {
-    const { data: resume, errors } = await dataClient.models.Resume.update(resumeData);
-    
+    const client = await getDataClient();
+    const { data: resume, errors } = await client.models.Resume.update(resumeData);
+
     if (errors) {
       console.error(`Errors updating resume ${resumeData.id}:`, errors);
       return null;
     }
-    
+
     return resume;
   } catch (error) {
     console.error(`Error updating resume ${resumeData.id}:`, error);
@@ -105,13 +121,14 @@ export async function updateResume(resumeData: Partial<Schema['models']['Resume'
  */
 export async function deleteResume(id: string) {
   try {
-    const { data: resume, errors } = await dataClient.models.Resume.delete({ id });
-    
+    const client = await getDataClient();
+    const { data: resume, errors } = await client.models.Resume.delete({ id });
+
     if (errors) {
       console.error(`Errors deleting resume ${id}:`, errors);
       return null;
     }
-    
+
     return resume;
   } catch (error) {
     console.error(`Error deleting resume ${id}:`, error);
