@@ -32,10 +32,18 @@ const info = (message) => console.log(`${colors.blue}[INFO]${colors.reset} ${mes
 
 // Function to check if AWS credentials are set
 function checkAwsCredentials() {
-  const hasProfile = !!process.env.AWS_PROFILE;
-  const hasKeys = !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
+  // Check if running in CI/CD environment
+  const isCI = process.env.CI || process.env.CODEBUILD_BUILD_ID;
 
   log('\n=== AWS Credential Check ===');
+
+  if (isCI) {
+    info('Running in CI/CD environment, using instance role for authentication');
+    return true;
+  }
+
+  const hasProfile = !!process.env.AWS_PROFILE;
+  const hasKeys = !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
 
   if (hasProfile) {
     info(`AWS_PROFILE is set to: ${process.env.AWS_PROFILE}`);
@@ -65,8 +73,9 @@ function checkAwsCredentials() {
   }
 
   if (!hasProfile && !hasKeys) {
-    error('No AWS credentials found. Please set either AWS_PROFILE or AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY.');
-    return false;
+    warning('No AWS credentials found. Please set either AWS_PROFILE or AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY.');
+    warning('If running in AWS environment, instance role will be used automatically.');
+    return true;
   }
 
   success('AWS credentials are properly configured.');

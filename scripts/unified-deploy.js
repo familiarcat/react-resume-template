@@ -221,10 +221,14 @@ async function seedData(environment) {
 // Function to sync data between environments
 async function syncData(sourceEnv, targetEnv) {
   try {
-    info(`Syncing data from ${sourceEnv} to ${targetEnv}...`);
+    info(`Syncing data between ${sourceEnv} and ${targetEnv}...`);
 
-    // First try with the new DynamoDB utility
-    info('Using DynamoDB utility for data syncing...');
+    // First try with the bidirectional sync script
+    info('Using bidirectional sync for data synchronization...');
+    execCommand(`node scripts/bidirectional-sync.js ${sourceEnv} ${targetEnv}`, { ignoreError: true });
+
+    // If bidirectional sync fails, try with the DynamoDB utility
+    info('Using DynamoDB utility as fallback...');
     execCommand(`npm run db:sync:${sourceEnv}-to-${targetEnv}`, { ignoreError: true });
 
     // Then try with the old sync-data script as fallback
@@ -335,8 +339,8 @@ async function main() {
     // Seed data
     await seedData(targetEnv);
 
-    // Automatically sync data
-    info(`Automatically syncing data from ${targetEnv} to ${syncEnv}...`);
+    // Automatically sync data bidirectionally between environments
+    info(`Automatically syncing data between ${targetEnv} and ${syncEnv}...`);
     await syncData(targetEnv, syncEnv);
 
     // Create a git commit
