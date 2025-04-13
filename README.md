@@ -128,35 +128,67 @@ npx ampx init
 
 ### Deployment
 
-#### Option 1: Using the Secure Deploy Script
+#### Option 1: Using the Unified Deployment Script (Recommended)
 
-This is the recommended approach for deployment:
+This is the recommended approach for deployment as it handles the entire process in one command:
+
+```bash
+# Deploy to development environment
+npm run deploy:dev
+
+# Deploy to production environment
+npm run deploy:prod
+
+# Deploy to development and sync to production
+npm run deploy:dev:prod
+
+# Deploy to production and sync to development
+npm run deploy:prod:dev
+```
+
+The unified deployment script performs the following steps:
+
+1. Validates AWS credentials
+2. Updates and deploys backend changes
+3. Builds the application
+4. Seeds data to the updated structure
+5. Syncs data between environments (if requested)
+6. Creates a git commit
+7. Pushes to GitHub (with confirmation)
+
+This ensures that your data structure and data are consistently deployed and synchronized between environments.
+
+#### Option 2: Using Individual Scripts
+
+If you prefer more control over the deployment process, you can use individual scripts:
 
 1. Deploy to development environment:
 
 ```bash
 npm run secure-deploy:dev
-# or
-yarn secure-deploy:dev
 ```
 
 2. Deploy to production environment:
 
 ```bash
 npm run secure-deploy:prod
-# or
-yarn secure-deploy:prod
 ```
 
 3. Seed data:
 
 ```bash
 npm run seed-data
-# or
-yarn seed-data
 ```
 
-#### Option 2: Using Git-Based Deployment
+4. Sync data between environments:
+
+```bash
+npm run sync-data:dev-to-prod
+# or
+npm run sync-data:prod-to-dev
+```
+
+#### Option 3: Using Git-Based Deployment
 
 You can also deploy directly from your Git repository:
 
@@ -337,6 +369,20 @@ The syncing process:
 4. Preserves relationships between entities
 
 This ensures that your development environment matches production, or vice versa.
+
+#### Using the Unified Deployment for Data Management
+
+For a streamlined approach to data management, use the unified deployment script:
+
+```bash
+# Deploy to development and sync to production
+npm run deploy:dev:prod
+
+# Deploy to production and sync to development
+npm run deploy:prod:dev
+```
+
+This will handle the entire process of deploying your data structure, seeding data, and syncing between environments in a single command.
 
 ## Authentication
 

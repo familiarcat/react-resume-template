@@ -49,6 +49,12 @@
     "ci-deploy": "CI=true npm run secure-deploy && npm run seed-data",
     "verify-deploy": "node scripts/verify-amplify-deployment.js",
 
+    "deploy": "node scripts/unified-deploy.js",
+    "deploy:dev": "node scripts/unified-deploy.js dev",
+    "deploy:prod": "node scripts/unified-deploy.js prod",
+    "deploy:dev:prod": "node scripts/unified-deploy.js dev prod",
+    "deploy:prod:dev": "node scripts/unified-deploy.js prod dev",
+
     "test": "jest --testMatch='<rootDir>/tests/**/*.test.(ts|tsx|js|jsx)'",
     "test:watch": "jest --testMatch='<rootDir>/tests/**/*.test.(ts|tsx|js|jsx)' --watch",
     "test:ci": "jest --testMatch='<rootDir>/tests/**/*.test.(ts|tsx|js|jsx)' --ci --coverage",
