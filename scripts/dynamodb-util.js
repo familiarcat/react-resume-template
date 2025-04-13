@@ -32,6 +32,9 @@ const warning = (message) => console.log(`${colors.yellow}⚠ ${message}${colors
 const error = (message) => console.log(`${colors.red}✗ ${message}${colors.reset}`);
 const info = (message) => console.log(`${colors.blue}ℹ ${message}${colors.reset}`);
 
+// Check if we should use local DynamoDB
+const useLocalDynamoDB = process.env.USE_LOCAL_DYNAMODB === 'true';
+
 // Function to get DynamoDB client
 function getClient(environment = 'development') {
   const config = {
@@ -41,10 +44,16 @@ function getClient(environment = 'development') {
   // Check if running in CI/CD environment
   const isCI = process.env.CI || process.env.CODEBUILD_BUILD_ID;
 
-  // Use local endpoint for development if specified
-  if (environment === 'development' && process.env.DYNAMODB_LOCAL_ENDPOINT && !isCI) {
+  // Use local endpoint if specified and not in CI/CD
+  if (useLocalDynamoDB && process.env.DYNAMODB_LOCAL_ENDPOINT && !isCI) {
     config.endpoint = process.env.DYNAMODB_LOCAL_ENDPOINT;
     info(`Using local DynamoDB endpoint: ${config.endpoint}`);
+
+    // For local DynamoDB, we need to use fake credentials
+    config.credentials = {
+      accessKeyId: 'LOCAL_FAKE_KEY',
+      secretAccessKey: 'LOCAL_FAKE_SECRET',
+    };
   } else {
     // For remote environments, always use AWS credentials
     info(`Using AWS DynamoDB for ${environment} environment`);

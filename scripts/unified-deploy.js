@@ -96,6 +96,10 @@ async function checkAwsCredentials() {
     info('Fixing DynamoDB access issues...');
     execCommand('npm run db:fix', { ignoreError: true });
 
+    // Fix DynamoDB connection issues
+    info('Fixing DynamoDB connection issues...');
+    execCommand('npm run db:connection:fix', { ignoreError: true });
+
     return true;
   } catch (err) {
     warning('AWS credentials check failed, attempting to fix...');

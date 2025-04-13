@@ -49,6 +49,7 @@
     "aws:check": "node scripts/check-aws.js",
     "aws:manage": "node scripts/aws-credential-manager.js",
     "db:fix": "node scripts/dynamodb-fix.js",
+    "db:connection:fix": "node scripts/dynamodb-connection-fix.js",
     "sandbox": "npx ampx sandbox",
     "sandbox:once": "npx ampx sandbox --once",
     "local-dev": "npm run sandbox && npm run dev",
