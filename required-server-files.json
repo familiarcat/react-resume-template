@@ -8,5 +8,14 @@
     "images": {
       "unoptimized": true
     }
+  },
+  "middleware": {
+    "pages": {},
+    "functions": {}
+  },
+  "serverComponentManifest": {
+    "clientModules": {},
+    "serverModules": {},
+    "edgeServerModules": {}
   }
 }

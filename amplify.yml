@@ -1,12 +1,6 @@
 version: 1
 applications:
-  - backend:
-      phases:
-        build:
-          commands:
-            - npm ci
-            - npx ampx pipeline-deploy
-    frontend:
+  - frontend:
       phases:
         preBuild:
           commands:
@@ -23,12 +17,19 @@ applications:
           - 'node_modules/**/*'
           - 'package.json'
           - 'next.config.js'
+          - 'required-server-files.json'
       cache:
         paths:
           - node_modules/**/*
           - .next/cache/**/*
           - .amplify-cache/**/*
-    appRoot: /
+      buildPath: /
+    backend:
+      phases:
+        build:
+          commands:
+            - npm ci
+            - npx ampx pipeline-deploy
     environment:
       variables:
         NODE_ENV: production

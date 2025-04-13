@@ -2,7 +2,7 @@
 
 /**
  * Fix Amplify Files Script
- * 
+ *
  * This script generates the required files for Amplify Gen 2 deployment.
  * It creates the required-server-files.json file if it doesn't exist.
  */
@@ -41,12 +41,12 @@ const fileExists = (filePath) => {
 // Function to create required-server-files.json
 const createRequiredServerFiles = () => {
   const filePath = path.join(process.cwd(), 'required-server-files.json');
-  
+
   if (fileExists(filePath)) {
     info('required-server-files.json already exists');
     return true;
   }
-  
+
   try {
     // Create a minimal required-server-files.json
     const content = {
@@ -59,9 +59,18 @@ const createRequiredServerFiles = () => {
         images: {
           unoptimized: true
         }
+      },
+      middleware: {
+        pages: {},
+        functions: {}
+      },
+      serverComponentManifest: {
+        clientModules: {},
+        serverModules: {},
+        edgeServerModules: {}
       }
     };
-    
+
     fs.writeFileSync(filePath, JSON.stringify(content, null, 2));
     success('Created required-server-files.json');
     return true;
@@ -71,10 +80,28 @@ const createRequiredServerFiles = () => {
   }
 };
 
+// Function to check if .next directory exists
+const checkNextDirectory = () => {
+  const dirPath = path.join(process.cwd(), '.next');
+
+  if (fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory()) {
+    info('.next directory exists');
+    return true;
+  } else {
+    warning('.next directory not found. Run "npm run build" first.');
+    return false;
+  }
+};
+
 // Function to check and create routes-manifest.json
 const checkRoutesManifest = () => {
+  // First check if .next directory exists
+  if (!checkNextDirectory()) {
+    return false;
+  }
+
   const filePath = path.join(process.cwd(), '.next', 'routes-manifest.json');
-  
+
   if (fileExists(filePath)) {
     info('routes-manifest.json exists');
     return true;
@@ -86,8 +113,13 @@ const checkRoutesManifest = () => {
 
 // Function to check and create build-manifest.json
 const checkBuildManifest = () => {
+  // First check if .next directory exists
+  if (!checkNextDirectory()) {
+    return false;
+  }
+
   const filePath = path.join(process.cwd(), '.next', 'build-manifest.json');
-  
+
   if (fileExists(filePath)) {
     info('build-manifest.json exists');
     return true;
@@ -100,24 +132,24 @@ const checkBuildManifest = () => {
 // Main function
 async function main() {
   log('\n=== Fixing Amplify Files ===');
-  
+
   // Start timer
   const startTime = Date.now();
-  
+
   try {
     // Create required-server-files.json
     const requiredServerFilesResult = createRequiredServerFiles();
-    
+
     // Check routes-manifest.json
     const routesManifestResult = checkRoutesManifest();
-    
+
     // Check build-manifest.json
     const buildManifestResult = checkBuildManifest();
-    
+
     // Calculate elapsed time
     const endTime = Date.now();
     const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(2);
-    
+
     if (requiredServerFilesResult && routesManifestResult && buildManifestResult) {
       success(`All files fixed in ${elapsedSeconds} seconds`);
       return true;
