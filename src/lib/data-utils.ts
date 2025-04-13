@@ -75,6 +75,7 @@ export async function fetchResumeById(id: string) {
  * @param resumeData Resume data
  * @returns Promise with created resume
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createResume(resumeData: any) {
   try {
     const client = await getDataClient();
@@ -97,6 +98,7 @@ export async function createResume(resumeData: any) {
  * @param resumeData Resume data with ID
  * @returns Promise with updated resume
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateResume(resumeData: any & { id: string }) {
   try {
     const client = await getDataClient();
