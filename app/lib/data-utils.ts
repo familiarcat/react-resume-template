@@ -35,7 +35,7 @@ export async function getDataClient() {
 export async function fetchResumes() {
   try {
     const client = await getDataClient();
-    const { data: resumes, errors } = await client.models.Resume.list();
+    const { data: resumes, errors } = await client.models.Resume.list({});
 
     if (errors) {
       console.error('Errors fetching resumes:', errors);
@@ -57,7 +57,7 @@ export async function fetchResumes() {
 export async function fetchResumeById(id: string) {
   try {
     const client = await getDataClient();
-    const { data: resume, errors } = await client.models.Resume.get({ id });
+    const { data: resume, errors } = await client.models.Resume.get({ id: id });
 
     if (errors) {
       console.error(`Errors fetching resume ${id}:`, errors);
