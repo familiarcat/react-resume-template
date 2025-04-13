@@ -3,9 +3,10 @@ backend:
   phases:
     build:
       commands:
-        - npm ci
+        - npm ci || npm install
         - npm install -g @aws-amplify/cli@12.10.0
         - npm install -g ampx@0.2.2
+        - npm run amplify:prebuild
         - node scripts/fix-dependencies.js
         - node scripts/cleanup-dependencies.js
         - npx ampx generate outputs
@@ -16,7 +17,8 @@ frontend:
       commands:
         - echo "Node.js version $(node -v)"
         - echo "NPM version $(npm -v)"
-        - npm ci
+        - npm ci || npm install
+        - npm run amplify:prebuild
         - node scripts/fix-dependencies.js
     build:
       commands:
