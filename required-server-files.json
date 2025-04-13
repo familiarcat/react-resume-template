@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "config": {
+    "configFileName": "next.config.js",
+    "configDirectory": ".",
+    "distDir": ".next",
+    "runtimeConfig": {},
+    "images": {
+      "unoptimized": true
+    }
+  }
+}
