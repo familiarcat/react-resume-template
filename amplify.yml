@@ -4,6 +4,9 @@ backend:
     build:
       commands:
         - export NODE_OPTIONS="--max-old-space-size=2048"
+        - export NODE_VERSION=18.19.0
+        - npm install -g n
+        - n 18.19.0
         - npm install --no-audit --no-fund
         - npm install @smithy/util-buffer-from@2.2.0 @smithy/is-array-buffer@2.2.0 execa@8.0.1 --save-exact
         - node scripts/fix-smithy-packages.js
@@ -14,6 +17,8 @@ frontend:
     preBuild:
       commands:
         - export NODE_OPTIONS="--max-old-space-size=2048"
+        - export NODE_VERSION=18.19.0
+        - n 18.19.0
         - npm install --no-audit --no-fund
         - npm install @smithy/util-buffer-from@2.2.0 @smithy/is-array-buffer@2.2.0 execa@8.0.1 --save-exact
         - node scripts/fix-smithy-packages.js
@@ -37,3 +42,5 @@ environmentVariables:
     value: "1"
   - name: NODE_OPTIONS
     value: "--max-old-space-size=2048"
+  - name: NODE_VERSION
+    value: "18.19.0"

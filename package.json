@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": "18.18.2",
+    "node": "18.19.0",
     "npm": "9.8.1"
   },
   "resolutions": {
@@ -28,6 +28,7 @@
     "fix-package-lock": "node scripts/fix-package-lock.js",
     "fix-smithy-packages": "node scripts/fix-smithy-packages.js",
     "fix-execa-version": "node scripts/fix-execa-version.js",
+    "ensure-node-version": "node scripts/ensure-node-version.js",
     "install:efficient": "node scripts/memory-efficient-install.js",
     "optimize-dependencies": "node scripts/optimize-dependencies.js",
     "fast-build": "node scripts/fast-build.js",
