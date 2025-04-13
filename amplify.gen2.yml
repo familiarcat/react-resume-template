@@ -5,6 +5,8 @@ applications:
         preBuild:
           commands:
             - npm ci
+            - node scripts/fix-dependencies.js
+            - node scripts/cleanup-dependencies.js
         build:
           commands:
             - npm run amplify:build:dummy

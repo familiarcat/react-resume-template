@@ -7,9 +7,10 @@ phases:
     commands:
       - echo "Installing dependencies..."
       - npm ci
-      - npm install -g @aws-amplify/cli
-      - npm install -g ampx
+      - npm install -g @aws-amplify/cli@12.10.0
+      - npm install -g ampx@0.2.2
       - node scripts/fix-dependencies.js
+      - node scripts/cleanup-dependencies.js
   pre_build:
     commands:
       - echo "Running pre-build steps..."
