@@ -4,7 +4,7 @@ import './global.js';
 import {Metadata} from 'next';
 import {Inter} from 'next/font/google';
 import React from 'react';
-import AmplifyProvider from './components/AmplifyProvider';
+import AmplifyProvider from '@/components/AmplifyProvider';
 
 const inter = Inter({subsets: ['latin']})
 

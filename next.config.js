@@ -5,7 +5,25 @@ const nextConfig = {
   // output: 'export', // Uncomment for static export
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.amazonaws.com',
+      },
+    ],
   },
+
+  // Transpile AWS Amplify modules
+  transpilePackages: [
+    '@aws-amplify/ui-react',
+    '@aws-amplify/ui-react-native',
+    'aws-amplify',
+    '@aws-amplify/core',
+    '@aws-amplify/auth',
+    '@aws-amplify/storage',
+    '@aws-amplify/api',
+    '@aws-amplify/datastore',
+  ],
 
   // Security headers
   async headers() {
