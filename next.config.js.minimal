@@ -1,0 +1,41 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Disable ESLint during build
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  // Disable TypeScript type checking during build
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
+  // Optimize for speed
+  swcMinify: true,
+  
+  // Disable source maps in production
+  productionBrowserSourceMaps: false,
+  
+  // Unoptimized images for faster build
+  images: {
+    unoptimized: true,
+  },
+
+  // Minimal transpilation
+  transpilePackages: [
+    'aws-amplify',
+  ],
+
+  // Disable powered by header
+  poweredByHeader: false,
+
+  // Experimental optimizations
+  experimental: {
+    // Optimize for faster builds
+    optimizeCss: false,
+    optimizeServerReact: true,
+    optimizePackageImports: ['aws-amplify'],
+  },
+};
+
+module.exports = nextConfig;

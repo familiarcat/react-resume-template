@@ -4,12 +4,9 @@ backend:
     build:
       commands:
         - export NODE_OPTIONS="--max-old-space-size=2048"
-        - npm ci || npm install --no-audit --no-fund
-        - npm install -g @aws-amplify/cli@12.10.0
-        - npm install -g ampx@0.2.2
-        - npm run amplify:prebuild
-        - npm run fix-dependencies
-        - npm run install:efficient
+        - npm install -g @aws-amplify/cli@12.10.0 ampx@0.2.2
+        - node scripts/optimize-dependencies.js
+        - npm ci --production --no-audit --no-fund || npm install --production --no-audit --no-fund
         - npx ampx generate outputs
         - echo "Amplify backend build completed"
 frontend:
@@ -19,15 +16,13 @@ frontend:
         - echo "Node.js version $(node -v)"
         - echo "NPM version $(npm -v)"
         - export NODE_OPTIONS="--max-old-space-size=2048"
-        - npm ci || npm install --no-audit --no-fund
-        - npm run amplify:prebuild
-        - npm run fix-dependencies
-        - npm run install:efficient
+        - node scripts/optimize-dependencies.js
+        - npm ci --production --no-audit --no-fund || npm install --production --no-audit --no-fund
+        - npm install --no-save --no-audit --no-fund typescript@5.1.6 tailwindcss@3.3.0 postcss@8.4.31 autoprefixer@10.4.16
     build:
       commands:
-        - echo "Running build..."
-        - npm run build
-        - npm run amplify:fix-files
+        - echo "Running fast build..."
+        - node scripts/fast-build.js
   artifacts:
     baseDirectory: .next
     files:
@@ -42,4 +37,4 @@ environmentVariables:
   - name: NEXT_TELEMETRY_DISABLED
     value: "1"
   - name: NODE_OPTIONS
-    value: "--max-old-space-size=4096"
+    value: "--max-old-space-size=2048"
