@@ -89,7 +89,8 @@ async function isGitClean() {
 async function checkAwsCredentials() {
   info('Checking AWS credentials...');
   try {
-    execCommand('npm run aws:check', { ignoreError: true });
+    // Use the new AWS credential manager
+    execCommand('npm run aws:manage', { ignoreError: true });
     return true;
   } catch (err) {
     warning('AWS credentials check failed, attempting to fix...');
@@ -162,7 +163,19 @@ async function deployBackend() {
 
     // Deploy backend changes
     info('Deploying backend changes...');
-    execCommand(`npx ampx pipeline-deploy --app-id ${appId} --branch ${branch}`, { ignoreError: true });
+    try {
+      execCommand(`npx ampx pipeline-deploy --app-id ${appId} --branch ${branch}`, { ignoreError: true });
+    } catch (err) {
+      warning(`Pipeline deploy failed: ${err.message}`);
+      warning('Trying sandbox deployment instead...');
+
+      // Try sandbox deployment as fallback
+      try {
+        execCommand('npm run sandbox:once', { ignoreError: true });
+      } catch (sandboxErr) {
+        warning(`Sandbox deployment failed: ${sandboxErr.message}`);
+      }
+    }
 
     return true;
   } catch (err) {
@@ -188,7 +201,15 @@ async function buildApplication() {
 async function seedData(environment) {
   try {
     info(`Seeding data to ${environment} environment...`);
+
+    // First try with the new DynamoDB utility
+    info('Using DynamoDB utility for data seeding...');
+    execCommand(`npm run db:seed:${environment}`, { ignoreError: true });
+
+    // Then try with the old seed-data script as fallback
+    info('Using seed-data script as fallback...');
     execCommand(`npm run seed-data:${environment}`, { ignoreError: true });
+
     return true;
   } catch (err) {
     warning(`Data seeding failed: ${err.message}`);
@@ -202,6 +223,13 @@ async function syncData(sourceEnv, targetEnv) {
   try {
     info(`Syncing data from ${sourceEnv} to ${targetEnv}...`);
 
+    // First try with the new DynamoDB utility
+    info('Using DynamoDB utility for data syncing...');
+    execCommand(`npm run db:sync:${sourceEnv}-to-${targetEnv}`, { ignoreError: true });
+
+    // Then try with the old sync-data script as fallback
+    info('Using sync-data script as fallback...');
+
     // Check if the sync script exists
     const packageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
     const syncScript = `sync-data:${sourceEnv}-to-${targetEnv}`;
@@ -210,7 +238,7 @@ async function syncData(sourceEnv, targetEnv) {
       execCommand(`npm run ${syncScript}`, { ignoreError: true });
     } else {
       warning(`Sync script '${syncScript}' not found in package.json`);
-      warning('Creating a temporary sync script');
+      warning('Using seed-data script as a fallback');
 
       // Use the seed-data script as a fallback
       execCommand(`npm run seed-data:${targetEnv}`, { ignoreError: true });
@@ -292,20 +320,8 @@ async function main() {
       warning('Git working directory is not clean. Automatically continuing with deployment.');
     }
 
-    // Check AWS credentials
+    // Check and manage AWS credentials
     await checkAwsCredentials();
-
-    // Check for conflicting AWS credentials
-    if (process.env.AWS_PROFILE && (process.env.AWS_ACCESS_KEY_ID || process.env.AWS_SECRET_ACCESS_KEY)) {
-      warning('Both AWS_PROFILE and AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY are set.');
-      warning('This can cause conflicts. Automatically using AWS_PROFILE and unsetting AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY.');
-
-      // Automatically use AWS_PROFILE
-      info('Using AWS_PROFILE for authentication');
-      // Unset AWS access keys in the current process
-      delete process.env.AWS_ACCESS_KEY_ID;
-      delete process.env.AWS_SECRET_ACCESS_KEY;
-    }
 
     // Validate Amplify schema
     await validateAmplifySchema();
