@@ -2,7 +2,7 @@
 
 /**
  * Dependency Verification Script
- * 
+ *
  * This script verifies that all required dependencies are installed
  * and installs any missing dependencies.
  */
@@ -36,11 +36,16 @@ const requiredDependencies = {
   'next': '^14.0.0',
   'react': '^18.2.0',
   'react-dom': '^18.2.0',
-  
+
   // UI utilities
   'clsx': '^2.0.0',
   'classnames': '^2.3.2',
-  
+  'tailwind-merge': '^1.14.0',
+
+  // UI components
+  '@headlessui/react': '^1.7.0',
+  '@heroicons/react': '^2.0.0',
+
   // AWS Amplify (if needed)
   'aws-amplify': '^6.0.0'
 };
@@ -57,31 +62,31 @@ const requiredDevDependencies = {
 // Function to verify and install dependencies
 async function verifyDependencies() {
   log('\n=== Verifying Dependencies ===');
-  
+
   try {
     // Read package.json
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    
+
     // Check for missing dependencies
     const missingDependencies = [];
     const outdatedDependencies = [];
-    
+
     Object.entries(requiredDependencies).forEach(([dep, version]) => {
       if (!packageJson.dependencies || !packageJson.dependencies[dep]) {
         missingDependencies.push(`${dep}@${version}`);
       }
     });
-    
+
     // Check for missing dev dependencies
     const missingDevDependencies = [];
-    
+
     Object.entries(requiredDevDependencies).forEach(([dep, version]) => {
       if (!packageJson.devDependencies || !packageJson.devDependencies[dep]) {
         missingDevDependencies.push(`${dep}@${version}`);
       }
     });
-    
+
     // Install missing dependencies
     if (missingDependencies.length > 0) {
       info(`Installing missing dependencies: ${missingDependencies.join(', ')}`);
@@ -94,7 +99,7 @@ async function verifyDependencies() {
     } else {
       success('All required dependencies are installed');
     }
-    
+
     // Install missing dev dependencies
     if (missingDevDependencies.length > 0) {
       info(`Installing missing dev dependencies: ${missingDevDependencies.join(', ')}`);
@@ -107,7 +112,7 @@ async function verifyDependencies() {
     } else {
       success('All required dev dependencies are installed');
     }
-    
+
     // Verify node_modules
     const nodeModulesPath = path.join(process.cwd(), 'node_modules');
     if (!fs.existsSync(nodeModulesPath)) {
@@ -115,18 +120,18 @@ async function verifyDependencies() {
       info('Running npm install to create node_modules');
       execSync('npm install', { stdio: 'inherit' });
     }
-    
+
     // Verify critical dependencies in node_modules
-    const criticalDeps = ['clsx', 'classnames', 'next', 'react', 'react-dom'];
+    const criticalDeps = ['clsx', 'classnames', 'tailwind-merge', '@headlessui/react', '@heroicons/react', 'next', 'react', 'react-dom'];
     const missingModules = [];
-    
+
     criticalDeps.forEach(dep => {
       const depPath = path.join(nodeModulesPath, dep);
       if (!fs.existsSync(depPath)) {
         missingModules.push(dep);
       }
     });
-    
+
     if (missingModules.length > 0) {
       warning(`Some critical modules are missing from node_modules: ${missingModules.join(', ')}`);
       info('Running npm install to fix missing modules');
@@ -134,7 +139,7 @@ async function verifyDependencies() {
     } else {
       success('All critical modules are present in node_modules');
     }
-    
+
     return true;
   } catch (err) {
     error(`Dependency verification failed: ${err.message}`);
