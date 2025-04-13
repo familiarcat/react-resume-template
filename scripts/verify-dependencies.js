@@ -46,8 +46,9 @@ const requiredDependencies = {
   '@headlessui/react': '^1.7.0',
   '@heroicons/react': '^2.0.0',
 
-  // AWS Amplify (if needed)
-  'aws-amplify': '^6.0.0'
+  // AWS Amplify
+  'aws-amplify': '^6.0.0',
+  '@aws-amplify/ui-react': '^6.0.0'
 };
 
 // List of required dev dependencies
@@ -122,7 +123,7 @@ async function verifyDependencies() {
     }
 
     // Verify critical dependencies in node_modules
-    const criticalDeps = ['clsx', 'classnames', 'tailwind-merge', '@headlessui/react', '@heroicons/react', 'next', 'react', 'react-dom'];
+    const criticalDeps = ['clsx', 'classnames', 'tailwind-merge', '@headlessui/react', '@heroicons/react', 'next', 'react', 'react-dom', 'aws-amplify', '@aws-amplify/ui-react'];
     const missingModules = [];
 
     criticalDeps.forEach(dep => {

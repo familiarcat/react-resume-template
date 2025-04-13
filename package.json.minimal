@@ -19,7 +19,9 @@
     "classnames": "^2.5.1",
     "tailwind-merge": "^1.14.0",
     "@headlessui/react": "^1.7.17",
-    "@heroicons/react": "^2.2.0"
+    "@heroicons/react": "^2.2.0",
+    "aws-amplify": "^6.0.17",
+    "@aws-amplify/ui-react": "^6.0.0"
   },
   "devDependencies": {
     "typescript": "5.1.6"

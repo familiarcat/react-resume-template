@@ -1,8 +1,8 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Use static export for Amplify Gen 2
-  output: 'export',
+  // Server-side rendering for Amplify Gen 2 with Server Actions
+  // output: 'export', // Commented out to enable Server Actions
 
   // Disable all checks for faster builds
   eslint: {

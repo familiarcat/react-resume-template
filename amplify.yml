@@ -17,16 +17,17 @@ frontend:
         - 'echo "NPM version: $(npm -v)"'
         - 'cp package.json.minimal package.json'
         - 'npm install --no-audit --no-fund'
-        - 'npm install clsx classnames tailwind-merge @headlessui/react @heroicons/react --no-save'
+        - 'npm install clsx classnames tailwind-merge @headlessui/react @heroicons/react aws-amplify @aws-amplify/ui-react --no-save'
         - 'node scripts/verify-dependencies.js'
     build:
       commands:
         - 'echo "Running Next.js build..."'
         - 'npx next build'
   artifacts:
-    baseDirectory: out
+    baseDirectory: .next
     files:
       - '**/*'
+    discard-paths: no
   cache:
     paths:
       - node_modules/**/*
