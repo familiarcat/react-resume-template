@@ -126,7 +126,7 @@ async function validateAmplifySchema() {
 // Function to deploy backend changes
 async function deployBackend() {
   try {
-    // Get Amplify app ID from environment or prompt user
+    // Get Amplify app ID from environment or use default
     let appId = process.env.AMPLIFY_APP_ID;
     if (!appId) {
       // Try to get app ID from amplify_outputs.json
@@ -143,25 +143,18 @@ async function deployBackend() {
         warning(`Could not read Amplify outputs: ${err.message}`);
       }
 
-      // If still no app ID, prompt user
+      // If still no app ID, use default
       if (!appId) {
-        const appIdInput = await new Promise((resolve) => {
-          rl.question(`${colors.yellow}Enter your Amplify App ID:${colors.reset} `, (answer) => {
-            resolve(answer.trim());
-          });
-        });
-
-        if (!appIdInput) {
-          throw new Error('Amplify App ID is required for deployment');
-        }
-
-        appId = appIdInput;
+        appId = 'd28u81cjrxr0oe'; // Default Amplify App ID
+        info(`Using default Amplify App ID: ${appId}`);
       }
+    } else {
+      info(`Using Amplify App ID from environment: ${appId}`);
     }
 
     // Get current git branch
-    const branch = execCommand('git rev-parse --abbrev-ref HEAD', { silent: true }) || 'main';
-    info(`Current git branch: ${branch}`);
+    const branch = process.env.BRANCH_NAME || execCommand('git rev-parse --abbrev-ref HEAD', { silent: true }) || 'main';
+    info(`Using git branch: ${branch}`);
 
     // Generate Amplify outputs
     info('Generating Amplify outputs...');
@@ -174,9 +167,9 @@ async function deployBackend() {
     return true;
   } catch (err) {
     warning(`Backend deployment failed: ${err.message}`);
-    // Ask if user wants to continue anyway
-    const shouldContinue = await confirm('Backend deployment failed. Continue with the rest of the process?');
-    return shouldContinue;
+    // Automatically continue with the rest of the process
+    warning('Continuing with the rest of the process despite backend deployment failure');
+    return true;
   }
 }
 
@@ -261,11 +254,7 @@ async function main() {
     // Check if git working directory is clean
     const isClean = await isGitClean();
     if (!isClean) {
-      const shouldContinue = await confirm('Git working directory is not clean. Continue anyway?');
-      if (!shouldContinue) {
-        log('Deployment aborted by user.');
-        process.exit(0);
-      }
+      warning('Git working directory is not clean. Automatically continuing with deployment.');
     }
 
     // Check AWS credentials
@@ -274,26 +263,13 @@ async function main() {
     // Check for conflicting AWS credentials
     if (process.env.AWS_PROFILE && (process.env.AWS_ACCESS_KEY_ID || process.env.AWS_SECRET_ACCESS_KEY)) {
       warning('Both AWS_PROFILE and AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY are set.');
-      warning('This can cause conflicts. It is recommended to use only one method.');
+      warning('This can cause conflicts. Automatically using AWS_PROFILE and unsetting AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY.');
 
-      const shouldContinue = await confirm('Do you want to continue with the current AWS credential configuration?');
-      if (!shouldContinue) {
-        log('Deployment aborted by user.');
-        process.exit(0);
-      }
-
-      // Ask which credential method to use
-      const useProfile = await confirm('Do you want to use AWS_PROFILE and unset AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY?');
-      if (useProfile) {
-        info('Using AWS_PROFILE for authentication');
-        // Unset AWS access keys in the current process
-        delete process.env.AWS_ACCESS_KEY_ID;
-        delete process.env.AWS_SECRET_ACCESS_KEY;
-      } else {
-        info('Using AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY for authentication');
-        // Unset AWS profile in the current process
-        delete process.env.AWS_PROFILE;
-      }
+      // Automatically use AWS_PROFILE
+      info('Using AWS_PROFILE for authentication');
+      // Unset AWS access keys in the current process
+      delete process.env.AWS_ACCESS_KEY_ID;
+      delete process.env.AWS_SECRET_ACCESS_KEY;
     }
 
     // Validate Amplify schema
@@ -308,22 +284,18 @@ async function main() {
     // Seed data
     await seedData(targetEnv);
 
-    // Ask if user wants to sync data
-    const shouldSync = await confirm(`Do you want to sync data from ${targetEnv} to ${syncEnv}?`);
-    if (shouldSync) {
-      await syncData(targetEnv, syncEnv);
-    }
+    // Automatically sync data
+    info(`Automatically syncing data from ${targetEnv} to ${syncEnv}...`);
+    await syncData(targetEnv, syncEnv);
 
     // Create a git commit
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const commitMessage = `Deploy to ${targetEnv} environment (${timestamp})`;
     await createGitCommit(commitMessage);
 
-    // Ask if user wants to push to GitHub
-    const shouldPush = await confirm(`Do you want to push to GitHub (${branch})?`);
-    if (shouldPush) {
-      await pushToGitHub(branch);
-    }
+    // Automatically push to GitHub
+    info(`Automatically pushing to GitHub (${branch})...`);
+    await pushToGitHub(branch);
 
     // Calculate elapsed time
     const endTime = Date.now();
