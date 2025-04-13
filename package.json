@@ -33,6 +33,7 @@
     "use-minimal-package": "node scripts/use-minimal-package.js use",
     "restore-package": "node scripts/use-minimal-package.js restore",
     "build:minimal": "npm run use-minimal-package && next build && npm run restore-package",
+    "create-amplify-outputs": "node scripts/create-amplify-outputs.js",
     "postinstall": "npm run fix-dependencies && npm run cleanup-dependencies && npm run fix-package-lock",
     "secure-deploy": "npm run build && node scripts/fix-amplify-files.js",
     "secure-deploy:dev": "npm run build && node scripts/fix-amplify-files.js && node scripts/amplify-secure-deploy.js development",

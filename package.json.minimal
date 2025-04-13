@@ -20,6 +20,8 @@
   },
   "devDependencies": {
     "typescript": "5.1.6",
-    "ampx": "0.2.2"
+    "ampx": "0.2.2",
+    "@parcel/watcher": "2.3.0",
+    "@aws-amplify/backend-graphql": "0.3.2"
   }
 }

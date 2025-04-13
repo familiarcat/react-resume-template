@@ -7,7 +7,9 @@ backend:
         - 'echo "Node.js version: $(node -v)"'
         - 'echo "NPM version: $(npm -v)"'
         - 'npm install -g ampx@0.2.2'
-        - 'npx ampx generate outputs'
+        - 'npm install --no-save @parcel/watcher'
+        - 'npm install --no-save @aws-amplify/backend-graphql'
+        - 'node scripts/create-amplify-outputs.js'
 frontend:
   phases:
     preBuild:
