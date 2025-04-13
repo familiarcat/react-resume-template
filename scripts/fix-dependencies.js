@@ -40,14 +40,18 @@ function fixExecaDependencies(dependencies) {
     const dep = dependencies[depName];
 
     // Check if this is execa with a version that requires Node.js >= 18.19.0
-    if (depName === 'execa' && dep.version && dep.version.startsWith('9.')) {
-      console.log(`Found execa@${dep.version}, downgrading to 8.0.1`);
-      dep.version = '8.0.1';
-      if (dep.resolved) {
-        dep.resolved = dep.resolved.replace(/execa-9\.[0-9]+\.[0-9]+\.tgz/, 'execa-8.0.1.tgz');
+    if (depName === 'execa' && dep.version) {
+      // Check if version is 9.x.x or higher
+      const versionMatch = dep.version.match(/^([0-9]+)\./);
+      if (versionMatch && parseInt(versionMatch[1]) >= 9) {
+        console.log(`Found execa@${dep.version}, downgrading to 8.0.1 for Node.js 18.18.2 compatibility`);
+        dep.version = '8.0.1';
+        if (dep.resolved) {
+          dep.resolved = dep.resolved.replace(/execa-[0-9]+\.[0-9]+\.[0-9]+\.tgz/, 'execa-8.0.1.tgz');
+        }
+        changed = true;
+        modified = true;
       }
-      changed = true;
-      modified = true;
     }
 
     // Recursively check nested dependencies

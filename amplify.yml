@@ -4,8 +4,12 @@ applications:
       phases:
         preBuild:
           commands:
+            - echo "Node.js version: $(node -v)"
+            - echo "NPM version: $(npm -v)"
             - echo "Installing dependencies..."
             - npm ci --omit=optional
+            - echo "Running fix-dependencies script..."
+            - node scripts/fix-dependencies.js
             - echo "Installing @parcel/watcher-linux-x64-glibc..."
             - npm install @parcel/watcher-linux-x64-glibc --no-save
             - echo "Checking for @parcel/watcher..."
@@ -38,8 +42,12 @@ applications:
       phases:
         preBuild:
           commands:
+            - echo "Node.js version: $(node -v)"
+            - echo "NPM version: $(npm -v)"
             - echo "Installing dependencies..."
             - npm ci --omit=optional
+            - echo "Running fix-dependencies script..."
+            - node scripts/fix-dependencies.js
             - echo "Installing @parcel/watcher-linux-x64-glibc..."
             - npm install @parcel/watcher-linux-x64-glibc --no-save
             - echo "Checking for @parcel/watcher..."
@@ -55,3 +63,4 @@ applications:
       variables:
         NODE_ENV: production
         NEXT_TELEMETRY_DISABLED: 1
+        NODE_OPTIONS: "--max-old-space-size=4096"
