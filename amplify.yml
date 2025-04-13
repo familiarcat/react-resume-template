@@ -13,6 +13,8 @@ frontend:
         - 'echo "NPM version: $(npm -v)"'
         - 'cp package.json.minimal package.json'
         - 'npm install --no-audit --no-fund'
+        - 'npm install clsx classnames tailwind-merge --no-save'
+        - 'node scripts/verify-dependencies.js'
     build:
       commands:
         - 'echo "Running minimal build..."'

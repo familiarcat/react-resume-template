@@ -148,7 +148,7 @@ exports.postBuild = {
         const size = execSync(`du -sh ${nextDir}`).toString().trim();
         console.log(`Size of .next directory: ${size}`);
       } catch (sizeError) {
-        console.log('Could not determine size of .next directory');
+        console.log('Could not determine size of .next directory', sizeError);
       }
     } else {
       console.error('.next directory is missing!');
