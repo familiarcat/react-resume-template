@@ -3,26 +3,10 @@ backend:
   phases:
     build:
       commands:
-        - export NODE_OPTIONS="--max-old-space-size=2048"
-        - export NODE_VERSION=18.19.0
-        - npm install -g n
-        - n 18.19.0
-        - npm install --no-audit --no-fund
-        - npm install @smithy/util-buffer-from@2.2.0 @smithy/is-array-buffer@2.2.0 execa@8.0.1 --save-exact
-        - node scripts/fix-smithy-packages.js
-        - node scripts/fix-execa-version.js
+        - npm ci --cache .npm --prefer-offline
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
-    preBuild:
-      commands:
-        - export NODE_OPTIONS="--max-old-space-size=2048"
-        - export NODE_VERSION=18.19.0
-        - n 18.19.0
-        - npm install --no-audit --no-fund
-        - npm install @smithy/util-buffer-from@2.2.0 @smithy/is-array-buffer@2.2.0 execa@8.0.1 --save-exact
-        - node scripts/fix-smithy-packages.js
-        - node scripts/fix-execa-version.js
     build:
       commands:
         - npm run build
@@ -30,17 +14,8 @@ frontend:
     baseDirectory: .next
     files:
       - '**/*'
-    discard-paths: no
   cache:
     paths:
-      - node_modules/**/*
       - .next/cache/**/*
-environmentVariables:
-  - name: NODE_ENV
-    value: production
-  - name: NEXT_TELEMETRY_DISABLED
-    value: "1"
-  - name: NODE_OPTIONS
-    value: "--max-old-space-size=2048"
-  - name: NODE_VERSION
-    value: "18.19.0"
+      - .npm/**/*
+      - node_modules/**/*

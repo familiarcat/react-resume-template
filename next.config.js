@@ -1,14 +1,4 @@
-
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  // Disable ESLint during build for faster builds
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  // Disable TypeScript type checking during build for faster builds
-  typescript: {
-    ignoreBuildErrors: true,
-  }
-};
+const nextConfig = {}
 
-module.exports = nextConfig;
+module.exports = nextConfig
