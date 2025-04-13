@@ -3,28 +3,28 @@ backend:
   phases:
     build:
       commands:
-        - export NODE_OPTIONS="--max-old-space-size=2048"
-        - echo "Node.js version: $(node -v)"
-        - echo "NPM version: $(npm -v)"
-        - npm install -g @aws-amplify/cli@12.10.0 ampx@0.2.2
-        - node scripts/optimize-dependencies.js
-        - npm install --no-audit --no-fund
-        - npx ampx generate outputs
-        - echo "Amplify backend build completed"
+        - 'export NODE_OPTIONS="--max-old-space-size=2048"'
+        - 'echo "Node.js version: $(node -v)"'
+        - 'echo "NPM version: $(npm -v)"'
+        - 'npm install -g @aws-amplify/cli@12.10.0 ampx@0.2.2'
+        - 'node scripts/optimize-dependencies.js'
+        - 'npm install --no-audit --no-fund'
+        - 'npx ampx generate outputs'
+        - 'echo "Amplify backend build completed"'
 frontend:
   phases:
     preBuild:
       commands:
-        - echo "Node.js version: $(node -v)"
-        - echo "NPM version: $(npm -v)"
-        - export NODE_OPTIONS="--max-old-space-size=2048"
-        - node scripts/optimize-dependencies.js
-        - npm install --no-audit --no-fund
-        - npm install --no-save --no-audit --no-fund typescript tailwindcss postcss autoprefixer
+        - 'echo "Node.js version: $(node -v)"'
+        - 'echo "NPM version: $(npm -v)"'
+        - 'export NODE_OPTIONS="--max-old-space-size=2048"'
+        - 'node scripts/optimize-dependencies.js'
+        - 'npm install --no-audit --no-fund'
+        - 'npm install --no-save --no-audit --no-fund typescript tailwindcss postcss autoprefixer'
     build:
       commands:
-        - echo "Running fast build..."
-        - node scripts/fast-build.js
+        - 'echo "Running fast build..."'
+        - 'node scripts/fast-build.js'
   artifacts:
     baseDirectory: .next
     files:
