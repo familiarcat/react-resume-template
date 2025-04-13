@@ -43,6 +43,7 @@
     "amplify:generate-outputs": "npx ampx generate outputs",
     "amplify:generate-graphql": "npx ampx generate graphql-client-code",
     "amplify:pipeline-deploy": "npx ampx pipeline-deploy",
+    "amplify:fix-parcel": "node scripts/fix-parcel-watcher.js",
 
     "ci-deploy": "CI=true npm run secure-deploy && npm run seed-data",
     "verify-deploy": "node scripts/verify-amplify-deployment.js",

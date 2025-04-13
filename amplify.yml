@@ -28,7 +28,8 @@ applications:
       phases:
         build:
           commands:
-            - npm ci
+            - npm ci --no-optional
+            - npm install @parcel/watcher-linux-x64-glibc --no-save
             - npx ampx pipeline-deploy
     environment:
       variables:

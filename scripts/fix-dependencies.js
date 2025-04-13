@@ -6,12 +6,24 @@ const path = require('path');
 // Path to package-lock.json
 const packageLockPath = path.join(__dirname, '..', 'package-lock.json');
 
+// Path to package.json
+const packageJsonPath = path.join(__dirname, '..', 'package.json');
+
 // Read the package-lock.json file
 let packageLock;
 try {
   packageLock = JSON.parse(fs.readFileSync(packageLockPath, 'utf8'));
 } catch (error) {
   console.error('Error reading package-lock.json:', error);
+  // Continue without package-lock.json
+}
+
+// Read the package.json file
+let packageJson;
+try {
+  packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+} catch (error) {
+  console.error('Error reading package.json:', error);
   process.exit(1);
 }
 
@@ -21,12 +33,12 @@ let modified = false;
 // Function to recursively search and fix execa dependencies
 function fixExecaDependencies(dependencies) {
   if (!dependencies) return false;
-  
+
   let changed = false;
-  
+
   Object.keys(dependencies).forEach(depName => {
     const dep = dependencies[depName];
-    
+
     // Check if this is execa with a version that requires Node.js >= 18.19.0
     if (depName === 'execa' && dep.version && dep.version.startsWith('9.')) {
       console.log(`Found execa@${dep.version}, downgrading to 8.0.1`);
@@ -37,13 +49,13 @@ function fixExecaDependencies(dependencies) {
       changed = true;
       modified = true;
     }
-    
+
     // Recursively check nested dependencies
     if (dep.dependencies && fixExecaDependencies(dep.dependencies)) {
       changed = true;
     }
   });
-  
+
   return changed;
 }
 
@@ -70,12 +82,41 @@ try {
   process.exit(1);
 }
 
+// Function to add optional dependencies for @parcel/watcher
+function addParcelWatcherDependencies() {
+  if (!packageJson.optionalDependencies) {
+    packageJson.optionalDependencies = {};
+  }
+
+  // Add all platform-specific watcher packages
+  const watcherPackages = [
+    '@parcel/watcher-linux-x64-glibc',
+    '@parcel/watcher-darwin-x64',
+    '@parcel/watcher-darwin-arm64',
+    '@parcel/watcher-win32-x64'
+  ];
+
+  let watcherModified = false;
+
+  watcherPackages.forEach(pkg => {
+    if (!packageJson.optionalDependencies[pkg]) {
+      packageJson.optionalDependencies[pkg] = '*';
+      watcherModified = true;
+    }
+  });
+
+  return watcherModified;
+}
+
 // Add resolutions field to package.json
 if (!packageJson.resolutions) {
   packageJson.resolutions = {};
 }
 
 packageJson.resolutions.execa = '8.0.1';
+
+// Add @parcel/watcher dependencies
+const parcelModified = addParcelWatcherDependencies();
 
 // Save the modified package.json
 console.log('Saving modified package.json');
