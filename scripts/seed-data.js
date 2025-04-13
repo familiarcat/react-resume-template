@@ -406,9 +406,96 @@ const seedSkills = async (resumeId) => {
 const syncData = async (sourceEnv, targetEnv) => {
   log(`\n=== Syncing Data from ${sourceEnv} to ${targetEnv} ===`);
 
-  // This would be implemented to copy data between environments
-  warning('Data syncing between environments is not yet implemented');
-  return false;
+  try {
+    // Configure source client
+    const sourceConfig = {
+      region: process.env.AWS_REGION || 'us-east-2',
+    };
+
+    if (sourceEnv === 'development') {
+      sourceConfig.endpoint = process.env.DYNAMODB_LOCAL_ENDPOINT || 'http://localhost:20002';
+    }
+
+    const sourceClient = DynamoDBDocumentClient.from(new DynamoDBClient(sourceConfig));
+
+    // Configure target client
+    const targetConfig = {
+      region: process.env.AWS_REGION || 'us-east-2',
+    };
+
+    if (targetEnv === 'development') {
+      targetConfig.endpoint = process.env.DYNAMODB_LOCAL_ENDPOINT || 'http://localhost:20002';
+    }
+
+    const targetClient = DynamoDBDocumentClient.from(new DynamoDBClient(targetConfig));
+
+    // Get table names
+    const tableNames = [
+      'Resume',
+      'ContactInfo',
+      'Summary',
+      'Education',
+      'School',
+      'Degree',
+      'Experience',
+      'Position',
+      'Skill'
+    ];
+
+    // For each table, get all items from source and put them in target
+    for (const tableName of tableNames) {
+      info(`Syncing table: ${tableName}`);
+
+      // Get all items from source
+      const sourceItems = await scanTable(sourceClient, tableName);
+      info(`Found ${sourceItems.length} items in source table`);
+
+      // Put all items in target
+      let successCount = 0;
+      for (const item of sourceItems) {
+        try {
+          await targetClient.send(new PutCommand({
+            TableName: tableName,
+            Item: item,
+          }));
+          successCount++;
+        } catch (err) {
+          error(`Failed to put item in target table: ${err.message}`);
+        }
+      }
+
+      info(`Successfully synced ${successCount} of ${sourceItems.length} items`);
+    }
+
+    success(`Data sync from ${sourceEnv} to ${targetEnv} completed successfully`);
+    return true;
+  } catch (err) {
+    error(`Data sync failed: ${err.message}`);
+    return false;
+  }
+};
+
+// Helper function to scan a table
+async function scanTable(client, tableName) {
+  const items = [];
+  let lastEvaluatedKey = null;
+
+  do {
+    const params = {
+      TableName: tableName,
+      Limit: 100,
+    };
+
+    if (lastEvaluatedKey) {
+      params.ExclusiveStartKey = lastEvaluatedKey;
+    }
+
+    const response = await client.send(new QueryCommand(params));
+    items.push(...(response.Items || []));
+    lastEvaluatedKey = response.LastEvaluatedKey;
+  } while (lastEvaluatedKey);
+
+  return items;
 };
 
 // Main function

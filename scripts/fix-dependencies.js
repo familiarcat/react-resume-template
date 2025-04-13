@@ -72,15 +72,7 @@ if (modified) {
 }
 
 // Now update package.json to pin execa to a compatible version
-const packageJsonPath = path.join(__dirname, '..', 'package.json');
-let packageJson;
-
-try {
-  packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-} catch (error) {
-  console.error('Error reading package.json:', error);
-  process.exit(1);
-}
+// Note: packageJson is already loaded at the top of the file
 
 // Function to add optional dependencies for @parcel/watcher
 function addParcelWatcherDependencies() {

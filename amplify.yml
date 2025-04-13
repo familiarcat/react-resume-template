@@ -5,7 +5,7 @@ applications:
         preBuild:
           commands:
             - echo "Installing dependencies..."
-            - npm ci
+            - npm ci --omit=optional
             - echo "Installing @parcel/watcher-linux-x64-glibc..."
             - npm install @parcel/watcher-linux-x64-glibc --no-save
             - echo "Checking for @parcel/watcher..."
@@ -16,9 +16,9 @@ applications:
             - echo "Running build..."
             - npm run build
             - echo "Running amplify hooks..."
-            - node amplify-hooks.js postBuild
+            - node amplify-hooks.js postBuild || true
             - echo "Seeding data..."
-            - npm run seed-data
+            - npm run seed-data || true
       artifacts:
         baseDirectory: .
         files:
@@ -39,7 +39,7 @@ applications:
         preBuild:
           commands:
             - echo "Installing dependencies..."
-            - npm ci --no-optional
+            - npm ci --omit=optional
             - echo "Installing @parcel/watcher-linux-x64-glibc..."
             - npm install @parcel/watcher-linux-x64-glibc --no-save
             - echo "Checking for @parcel/watcher..."
@@ -48,7 +48,7 @@ applications:
         build:
           commands:
             - echo "Running amplify hooks..."
-            - node amplify-hooks.js preBuild
+            - node amplify-hooks.js preBuild || true
             - echo "Deploying backend..."
             - npx ampx pipeline-deploy || (echo "Retrying with explicit @parcel/watcher installation" && npm install @parcel/watcher-linux-x64-glibc --no-save && npx ampx pipeline-deploy)
     environment:

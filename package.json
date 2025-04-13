@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/build-error-handler.js",
     "start": "next start",
     "lint": "next lint",
 
@@ -25,6 +25,8 @@
     "amplify:fix-files": "node scripts/fix-amplify-files.js",
     "amplify:gen2:fix-files": "node scripts/fix-amplify-files.js",
     "amplify:gen2:cicd": "npm run build && npm run amplify:fix-files && npm run seed-data:prod",
+    "amplify:fix-parcel": "node scripts/fix-parcel-watcher.js",
+    "amplify:check-build": "node scripts/build-error-handler.js",
 
     "seed-data": "node scripts/seed-data.js",
     "seed-data:dev": "node scripts/seed-data.js development",
@@ -43,7 +45,6 @@
     "amplify:generate-outputs": "npx ampx generate outputs",
     "amplify:generate-graphql": "npx ampx generate graphql-client-code",
     "amplify:pipeline-deploy": "npx ampx pipeline-deploy",
-    "amplify:fix-parcel": "node scripts/fix-parcel-watcher.js",
 
     "ci-deploy": "CI=true npm run secure-deploy && npm run seed-data",
     "verify-deploy": "node scripts/verify-amplify-deployment.js",
