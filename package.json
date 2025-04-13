@@ -44,7 +44,7 @@
 
     "amplify:generate-outputs": "npx ampx generate outputs",
     "amplify:generate-graphql": "npx ampx generate graphql-client-code",
-    "amplify:pipeline-deploy": "npx ampx pipeline-deploy",
+    "amplify:pipeline-deploy": "npx ampx pipeline-deploy --app-id ${AMPLIFY_APP_ID:-d28u81cjrxr0oe} --branch ${BRANCH_NAME:-main}",
 
     "ci-deploy": "CI=true npm run secure-deploy && npm run seed-data",
     "verify-deploy": "node scripts/verify-amplify-deployment.js",
