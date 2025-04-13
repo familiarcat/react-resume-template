@@ -4,10 +4,20 @@ applications:
       phases:
         preBuild:
           commands:
+            - echo "Installing dependencies..."
             - npm ci
+            - echo "Installing @parcel/watcher-linux-x64-glibc..."
+            - npm install @parcel/watcher-linux-x64-glibc --no-save
+            - echo "Checking for @parcel/watcher..."
+            - ls -la node_modules/@parcel || true
+            - ls -la node_modules/@parcel/watcher* || true
         build:
           commands:
+            - echo "Running build..."
             - npm run build
+            - echo "Running amplify hooks..."
+            - node amplify-hooks.js postBuild
+            - echo "Seeding data..."
             - npm run seed-data
       artifacts:
         baseDirectory: .
@@ -26,11 +36,21 @@ applications:
       buildPath: /
     backend:
       phases:
+        preBuild:
+          commands:
+            - echo "Installing dependencies..."
+            - npm ci --no-optional
+            - echo "Installing @parcel/watcher-linux-x64-glibc..."
+            - npm install @parcel/watcher-linux-x64-glibc --no-save
+            - echo "Checking for @parcel/watcher..."
+            - ls -la node_modules/@parcel || true
+            - ls -la node_modules/@parcel/watcher* || true
         build:
           commands:
-            - npm ci --no-optional
-            - npm install @parcel/watcher-linux-x64-glibc --no-save
-            - npx ampx pipeline-deploy
+            - echo "Running amplify hooks..."
+            - node amplify-hooks.js preBuild
+            - echo "Deploying backend..."
+            - npx ampx pipeline-deploy || (echo "Retrying with explicit @parcel/watcher installation" && npm install @parcel/watcher-linux-x64-glibc --no-save && npx ampx pipeline-deploy)
     environment:
       variables:
         NODE_ENV: production
