@@ -3,29 +3,24 @@ backend:
   phases:
     build:
       commands:
-        - 'export NODE_OPTIONS="--max-old-space-size=2048"'
-        - 'echo "Node.js version: $(node -v)"'
-        - 'echo "NPM version: $(npm -v)"'
-        - 'npm install -g ampx@0.2.2'
-        - 'npm install --no-save @parcel/watcher'
-        - 'npm install --no-save @aws-amplify/backend-graphql'
-        - 'node scripts/create-amplify-outputs.js'
+        - 'echo "Skipping backend build for static export"'
 frontend:
   phases:
     preBuild:
       commands:
         - 'export NODE_OPTIONS="--max-old-space-size=2048"'
-        - 'npm install --no-audit --no-fund --production'
-        - 'node scripts/use-minimal-package.js use'
+        - 'echo "Node.js version: $(node -v)"'
+        - 'echo "NPM version: $(npm -v)"'
+        - 'cp package.json.minimal package.json'
+        - 'npm install --no-audit --no-fund'
     build:
       commands:
         - 'echo "Running minimal build..."'
         - 'npx next build'
-        - 'node scripts/use-minimal-package.js restore'
   artifacts:
-    baseDirectory: .next
+    baseDirectory: out
     files:
-      - "**/*"
+      - '**/*'
   cache:
     paths:
       - node_modules/**/*
