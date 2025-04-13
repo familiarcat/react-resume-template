@@ -24,6 +24,7 @@ export async function getDataClient() {
 
   // Generate a client for data operations
   // Use 'any' type temporarily to avoid import issues
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return generateClient<any>();
 }
 
