@@ -48,6 +48,7 @@
     "aws:fix": "node scripts/aws-credential-fix.js",
     "aws:check": "node scripts/check-aws.js",
     "aws:manage": "node scripts/aws-credential-manager.js",
+    "aws:credentials": "node -e \"require('./scripts/aws-credential-provider').fixAwsCredentials()\";",
     "db:fix": "node scripts/dynamodb-fix.js",
     "db:connection:fix": "node scripts/dynamodb-connection-fix.js",
     "sandbox": "npx ampx sandbox",

@@ -92,6 +92,10 @@ async function checkAwsCredentials() {
     // Use the new AWS credential manager
     execCommand('npm run aws:manage', { ignoreError: true });
 
+    // Fix AWS credentials
+    info('Fixing AWS credentials...');
+    execCommand('npm run aws:credentials', { ignoreError: true });
+
     // Fix DynamoDB access issues
     info('Fixing DynamoDB access issues...');
     execCommand('npm run db:fix', { ignoreError: true });

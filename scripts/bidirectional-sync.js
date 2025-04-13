@@ -12,6 +12,7 @@ const { DynamoDBDocumentClient, PutCommand, GetCommand, ScanCommand } = require(
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { getAwsCredentials, isRunningInCI, isUsingLocalDynamoDB, getLocalDynamoDBEndpoint } = require('./aws-credential-provider');
 require('dotenv').config();
 
 // ANSI color codes for better output
@@ -41,42 +42,19 @@ const MODELS = [
 
 // Function to get DynamoDB client
 function getClient(environment = 'development') {
-  const config = {
-    region: process.env.AWS_REGION || 'us-east-2',
-  };
+  // Get AWS credentials from the centralized provider
+  const config = getAwsCredentials(environment);
 
-  // Check if running in CI/CD environment
-  const isCI = process.env.CI || process.env.CODEBUILD_BUILD_ID;
-
-  // Use local endpoint for development if specified
-  if (environment === 'development' && process.env.DYNAMODB_LOCAL_ENDPOINT && !isCI) {
-    config.endpoint = process.env.DYNAMODB_LOCAL_ENDPOINT;
+  // If using local DynamoDB and not in CI/CD, use local endpoint
+  if (isUsingLocalDynamoDB() && !isRunningInCI()) {
+    config.endpoint = getLocalDynamoDBEndpoint();
     info(`Using local DynamoDB endpoint: ${config.endpoint}`);
   } else {
     // For remote environments, always use AWS credentials
     info(`Using AWS DynamoDB for ${environment} environment`);
   }
 
-  // Add credentials if provided
-  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
-    config.credentials = {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    };
-
-    // Add session token if provided
-    if (process.env.AWS_SESSION_TOKEN) {
-      config.credentials.sessionToken = process.env.AWS_SESSION_TOKEN;
-    }
-  }
-
-  // If running in CI/CD environment, don't use explicit credentials
-  // as the instance role will be used automatically
-  if (isCI) {
-    info('Running in CI/CD environment, using instance role for authentication');
-    delete config.credentials;
-  }
-
+  // Create the DynamoDB client
   const client = new DynamoDBClient(config);
   return DynamoDBDocumentClient.from(client);
 }
