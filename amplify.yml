@@ -4,21 +4,23 @@ backend:
     build:
       commands:
         - export NODE_OPTIONS="--max-old-space-size=2048"
+        - echo "Node.js version: $(node -v)"
+        - echo "NPM version: $(npm -v)"
         - npm install -g @aws-amplify/cli@12.10.0 ampx@0.2.2
         - node scripts/optimize-dependencies.js
-        - npm ci --production --no-audit --no-fund || npm install --production --no-audit --no-fund
+        - npm install --no-audit --no-fund
         - npx ampx generate outputs
         - echo "Amplify backend build completed"
 frontend:
   phases:
     preBuild:
       commands:
-        - echo "Node.js version $(node -v)"
-        - echo "NPM version $(npm -v)"
+        - echo "Node.js version: $(node -v)"
+        - echo "NPM version: $(npm -v)"
         - export NODE_OPTIONS="--max-old-space-size=2048"
         - node scripts/optimize-dependencies.js
-        - npm ci --production --no-audit --no-fund || npm install --production --no-audit --no-fund
-        - npm install --no-save --no-audit --no-fund typescript@5.1.6 tailwindcss@3.3.0 postcss@8.4.31 autoprefixer@10.4.16
+        - npm install --no-audit --no-fund
+        - npm install --no-save --no-audit --no-fund typescript tailwindcss postcss autoprefixer
     build:
       commands:
         - echo "Running fast build..."
