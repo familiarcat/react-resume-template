@@ -38,8 +38,11 @@ function getClient(environment = 'development') {
     region: process.env.AWS_REGION || 'us-east-2',
   };
 
+  // Check if running in CI/CD environment
+  const isCI = process.env.CI || process.env.CODEBUILD_BUILD_ID;
+
   // Use local endpoint for development if specified
-  if (environment === 'development' && process.env.DYNAMODB_LOCAL_ENDPOINT) {
+  if (environment === 'development' && process.env.DYNAMODB_LOCAL_ENDPOINT && !isCI) {
     config.endpoint = process.env.DYNAMODB_LOCAL_ENDPOINT;
     info(`Using local DynamoDB endpoint: ${config.endpoint}`);
   } else {
@@ -58,6 +61,13 @@ function getClient(environment = 'development') {
     if (process.env.AWS_SESSION_TOKEN) {
       config.credentials.sessionToken = process.env.AWS_SESSION_TOKEN;
     }
+  }
+
+  // If running in CI/CD environment, don't use explicit credentials
+  // as the instance role will be used automatically
+  if (isCI) {
+    info('Running in CI/CD environment, using instance role for authentication');
+    delete config.credentials;
   }
 
   const client = new DynamoDBClient(config);

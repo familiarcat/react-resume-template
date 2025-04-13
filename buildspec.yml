@@ -1,0 +1,54 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo "Installing dependencies..."
+      - npm ci
+      - npm install -g @aws-amplify/cli
+      - npm install -g ampx
+      - node scripts/fix-dependencies.js
+  pre_build:
+    commands:
+      - echo "Running pre-build steps..."
+      - npx ampx generate outputs
+      - echo "Amplify backend pre-build completed"
+  build:
+    commands:
+      - echo "Running build..."
+      - npm run build
+      - npm run amplify:fix-files
+      - echo "Build completed"
+  post_build:
+    commands:
+      - echo "Running post-build steps..."
+      - npx ampx pipeline-deploy || echo "Pipeline deploy failed, continuing..."
+      - echo "Post-build completed"
+
+artifacts:
+  base-directory: .next
+  files:
+    - '**/*'
+  secondary-artifacts:
+    public:
+      base-directory: public
+      files:
+        - '**/*'
+    config:
+      files:
+        - package.json
+        - next.config.js
+        - required-server-files.json
+
+cache:
+  paths:
+    - 'node_modules/**/*'
+    - '.next/cache/**/*'
+
+env:
+  variables:
+    NODE_ENV: production
+    NEXT_TELEMETRY_DISABLED: "1"
+    NODE_OPTIONS: "--max-old-space-size=4096"

@@ -1,66 +1,38 @@
 version: 1
-applications:
-  - frontend:
-      phases:
-        preBuild:
-          commands:
-            - echo "Node.js version: $(node -v)"
-            - echo "NPM version: $(npm -v)"
-            - echo "Installing dependencies..."
-            - npm ci --omit=optional
-            - echo "Running fix-dependencies script..."
-            - node scripts/fix-dependencies.js
-            - echo "Installing @parcel/watcher-linux-x64-glibc..."
-            - npm install @parcel/watcher-linux-x64-glibc --no-save
-            - echo "Checking for @parcel/watcher..."
-            - ls -la node_modules/@parcel || true
-            - ls -la node_modules/@parcel/watcher* || true
-        build:
-          commands:
-            - echo "Running build..."
-            - npm run build
-            - echo "Running amplify hooks..."
-            - node amplify-hooks.js postBuild || true
-            - echo "Seeding data..."
-            - npm run seed-data || true
-      artifacts:
-        baseDirectory: .
-        files:
-          - '.next/**/*'
-          - 'public/**/*'
-          - 'node_modules/**/*'
-          - 'package.json'
-          - 'next.config.js'
-          - 'required-server-files.json'
-      cache:
-        paths:
-          - node_modules/**/*
-          - .next/cache/**/*
-          - .amplify-cache/**/*
-      buildPath: /
-    backend:
-      phases:
-        preBuild:
-          commands:
-            - echo "Node.js version: $(node -v)"
-            - echo "NPM version: $(npm -v)"
-            - echo "Installing dependencies..."
-            - npm ci --omit=optional
-            - echo "Running fix-dependencies script..."
-            - node scripts/fix-dependencies.js
-            - echo "Installing @parcel/watcher-linux-x64-glibc..."
-            - npm install @parcel/watcher-linux-x64-glibc --no-save
-            - echo "Checking for @parcel/watcher..."
-            - ls -la node_modules/@parcel || true
-            - ls -la node_modules/@parcel/watcher* || true
-        build:
-          commands:
-            - echo "Running amplify hooks..."
-            - node amplify-hooks.js preBuild || true
-            - echo "Deploying backend..."
-            - npx ampx pipeline-deploy || (echo "Retrying with explicit @parcel/watcher installation" && npm install @parcel/watcher-linux-x64-glibc --no-save && npx ampx pipeline-deploy)
-    environment:
-      variables:
-        NODE_ENV: production
-        NEXT_TELEMETRY_DISABLED: 1
-        NODE_OPTIONS: "--max-old-space-size=4096"
+backend:
+  phases:
+    build:
+      commands:
+        - npm ci
+        - npm install -g @aws-amplify/cli
+        - npm install -g ampx
+        - npx ampx generate outputs
+        - echo "Amplify backend build completed"
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - echo "Node.js version $(node -v)"
+        - echo "NPM version $(npm -v)"
+        - npm ci
+        - node scripts/fix-dependencies.js
+    build:
+      commands:
+        - echo "Running build..."
+        - npm run build
+        - npm run amplify:fix-files
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*
+environmentVariables:
+  - name: NODE_ENV
+    value: production
+  - name: NEXT_TELEMETRY_DISABLED
+    value: "1"
+  - name: NODE_OPTIONS
+    value: "--max-old-space-size=4096"
