@@ -5,8 +5,9 @@ backend:
       commands:
         - export NODE_OPTIONS="--max-old-space-size=2048"
         - npm install --no-audit --no-fund
-        - npm install @smithy/util-buffer-from@2.2.0 @smithy/is-array-buffer@2.2.0 --save-exact
+        - npm install @smithy/util-buffer-from@2.2.0 @smithy/is-array-buffer@2.2.0 execa@8.0.1 --save-exact
         - node scripts/fix-smithy-packages.js
+        - node scripts/fix-execa-version.js
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
@@ -14,8 +15,9 @@ frontend:
       commands:
         - export NODE_OPTIONS="--max-old-space-size=2048"
         - npm install --no-audit --no-fund
-        - npm install @smithy/util-buffer-from@2.2.0 @smithy/is-array-buffer@2.2.0 --save-exact
+        - npm install @smithy/util-buffer-from@2.2.0 @smithy/is-array-buffer@2.2.0 execa@8.0.1 --save-exact
         - node scripts/fix-smithy-packages.js
+        - node scripts/fix-execa-version.js
     build:
       commands:
         - npm run build

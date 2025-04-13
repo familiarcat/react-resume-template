@@ -27,6 +27,7 @@
     "cleanup-dependencies": "node scripts/cleanup-dependencies.js",
     "fix-package-lock": "node scripts/fix-package-lock.js",
     "fix-smithy-packages": "node scripts/fix-smithy-packages.js",
+    "fix-execa-version": "node scripts/fix-execa-version.js",
     "install:efficient": "node scripts/memory-efficient-install.js",
     "optimize-dependencies": "node scripts/optimize-dependencies.js",
     "fast-build": "node scripts/fast-build.js",
